@@ -3,8 +3,6 @@
   "display": "Default",
   "compilerOptions": {
     "composite": false,
-    "declaration": true,
-    "declarationMap": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "inlineSources": false,
@@ -12,7 +10,6 @@
     "moduleResolution": "node",
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "preserveWatchOutput": true,
     "skipLibCheck": true,
     "strict": true
   },
