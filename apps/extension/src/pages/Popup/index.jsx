@@ -1,7 +1,6 @@
 import React from 'react';
 import { render } from 'react-dom';
-
-import Popup from 'components/Popup';
+import { Popup } from 'ui';
 import 'assets/styles/tailwind.css';
 import './index.css';
 

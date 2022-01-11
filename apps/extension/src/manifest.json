@@ -3,6 +3,7 @@
   "name": "Readly Extension",
   "options_page": "options.html",
   "background": { "service_worker": "background.bundle.js" },
+  "permissions": ["storage", "cookies"],
   "action": {
     "default_popup": "popup.html",
     "default_icon": "icon-34.png"
@@ -12,7 +13,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["http://*/*", "https://*/*"],
+      "matches": ["http://*/*", "https://*/*", "<all_urls>"],
       "js": ["contentScript.bundle.js"],
       "css": ["content.styles.css"]
     }
