@@ -37,12 +37,13 @@ var options = {
   mode: process.env.NODE_ENV || 'development',
   entry: {
     options: path.join(__dirname, 'src', 'pages', 'Options', 'index.jsx'),
-    popup: path.join(__dirname, 'src', 'pages', 'Popup', 'index.jsx'),
+    auth_popup: path.join(__dirname, 'src', 'pages', 'AuthPopup', 'index.jsx'),
+    dash_popup: path.join(__dirname, 'src', 'pages', 'DashPopup', 'index.jsx'),
     background: path.join(__dirname, 'src', 'pages', 'Background', 'index.js'),
     contentScript: path.join(__dirname, 'src', 'pages', 'Content', 'index.js'),
   },
   chromeExtensionBoilerplate: {
-    notHotReload: ['contentScript', 'devtools'],
+    notHotReload: ['contentScript', 'devtools', 'background'],
   },
   output: {
     path: path.resolve(__dirname, 'build'),
@@ -160,9 +161,15 @@ var options = {
       cache: false,
     }),
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, 'src', 'pages', 'Popup', 'index.html'),
-      filename: 'popup.html',
-      chunks: ['popup'],
+      template: path.join(__dirname, 'src', 'pages', 'AuthPopup', 'index.html'),
+      filename: 'auth_popup.html',
+      chunks: ['auth_popup'],
+      cache: false,
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, 'src', 'pages', 'DashPopup', 'index.html'),
+      filename: 'dash_popup.html',
+      chunks: ['dash_popup'],
       cache: false,
     }),
   ],

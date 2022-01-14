@@ -1,10 +1,7 @@
-import { Button } from "ui";
-
-export default function Web() {
+export default function Landing() {
   return (
-    <div>
-      <h1 className="font-medium text-xl text-orange-600">Web</h1>
-      <Button />
+    <div className="flex justify-center px-8 pt-8">
+      <div className="w-full max-w-s">The landing page goes here.</div>
     </div>
   );
 }
