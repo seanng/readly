@@ -11,7 +11,8 @@
     "dev": "turbo run dev --parallel",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "format:prisma": "yarn workspace server format:prisma"
+    "prisma:format": "yarn workspace server prisma:format",
+    "prisma:generate": "yarn workspace server prisma:generate"
   },
   "devDependencies": {
     "prettier": "^2.5.1",

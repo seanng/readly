@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import axios from "axios";
+import axios from "lib/axios";
 import { EMAIL_REGEX } from "shared/constants";
 
 const CHROME_RUNTIME_NOT_FOUND = "chrome runtime not found";
@@ -17,7 +17,7 @@ export default function Signup() {
     password: string;
   }): Promise<void> => {
     try {
-      const { data } = await axios.post("/api/signup", input);
+      const { data } = await axios.post("/signup", input);
       // save jwt to cookie?
       // https://medium.com/@ryanchenkie_40935/react-authentication-how-to-store-jwt-in-a-cookie-346519310e81
       const payload = {
