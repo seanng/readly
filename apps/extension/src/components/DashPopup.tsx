@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
+import { DashSidebar, DashMain } from 'components';
 
-export const DashPopup: React.FC = () => {
+const Placeholder = () => {
   const handleSignout = () => {
     chrome.runtime.sendMessage({ signout: true }, ({ success }) => {
       if (success) window.close();
     });
   };
-
   return (
     <div className="p-6">
       <header className="font-medium text-xl">
@@ -22,3 +22,35 @@ export const DashPopup: React.FC = () => {
     </div>
   );
 };
+
+const collections = [
+  {
+    name: 'Web 3.0 stuff',
+    current: true,
+    href: '#',
+  },
+  {
+    name: 'Job prep 2022',
+    current: false,
+    href: '#',
+  },
+];
+
+export const DashPopup: React.FC = () => {
+  useSetPopupWidth();
+  return (
+    <div className="flex bg-gray-100 h-full max-w-full">
+      <DashSidebar collections={collections} />
+      <DashMain />
+    </div>
+    // <Placeholder />
+  );
+};
+
+function useSetPopupWidth() {
+  useEffect(() => {
+    const $body = document.querySelector('body');
+    // visible width can sometimes be less than 800px
+    if ($body) $body.style.width = `${window.innerWidth}px`;
+  }, []);
+}

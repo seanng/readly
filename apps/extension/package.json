@@ -4,10 +4,12 @@
   "description": "Reader extension that uses a boilerplate by lxieyang.",
   "private": true,
   "scripts": {
-    "build": "node utils/build.js",
-    "dev": "node utils/webserver.js"
+    "build": "node bundler/build.js",
+    "dev": "node bundler/webserver.js"
   },
   "dependencies": {
+    "@headlessui/react": "^1.4.3",
+    "@heroicons/react": "^1.0.5",
     "@hot-loader/react-dom": "^17.0.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
