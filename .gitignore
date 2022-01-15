@@ -1,12 +1,24 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# compiled output
+dist/
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
 # dependencies
-node_modules
 .pnp
 .pnp.js
 
 # testing
 coverage
+/.nyc_output
 
 # next.js
 .next/
@@ -17,12 +29,6 @@ build
 .DS_Store
 *.pem
 
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
 # local env files
 .env*
 secrets.*.js
@@ -30,4 +36,4 @@ secrets.*.js
 # turbo
 .turbo
 
-dist/
+
