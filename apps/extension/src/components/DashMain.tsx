@@ -13,13 +13,12 @@ export function DashMain() {
 interface HeaderProps {
   collectionName: string;
 }
-
 function Header({ collectionName }: HeaderProps) {
   return (
     <div className="flex justify-between p-4">
       <div className="flex items-center">
         <FolderOpenIcon className="w-6 mr-2" />
-        <h1 className="text-lg font-medium">{collectionName}</h1>
+        <h1 className="text-lg leading-7 font-medium">{collectionName}</h1>
       </div>
       <div className="flex">
         <WhiteButtonSmall>

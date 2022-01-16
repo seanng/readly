@@ -12,15 +12,15 @@ async function setPopupOnLoad() {
 async function messageHandler(req, sender, sendResponse) {
   // Authenticated
   if (req.token) {
-    chrome.storage.local.set({ token: req.token });
-    chrome.action.setPopup({ popup: 'dash_popup.html' });
+    await chrome.storage.local.set({ token: req.token });
+    await chrome.action.setPopup({ popup: 'dash_popup.html' });
     sendResponse({ success: true });
     return;
   }
   // Signout
   if (req.signout) {
     chrome.storage.local.remove('token');
-    chrome.action.setPopup({ popup: 'auth_popup.html' });
+    await chrome.action.setPopup({ popup: 'auth_popup.html' });
     sendResponse({ success: true });
     return;
   }

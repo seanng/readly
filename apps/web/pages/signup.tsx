@@ -17,7 +17,7 @@ export default function Signup() {
     password: string;
   }): Promise<void> => {
     try {
-      const { data } = await axios.post("/signup", input);
+      const { data } = await axios.post("/auth/signup", input);
       // save jwt to cookie?
       // https://medium.com/@ryanchenkie_40935/react-authentication-how-to-store-jwt-in-a-cookie-346519310e81
       const payload = {
