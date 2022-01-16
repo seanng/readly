@@ -12,7 +12,9 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "prisma:format": "yarn workspace server prisma:format",
-    "prisma:generate": "yarn workspace server prisma:generate"
+    "prisma:generate": "yarn workspace server prisma:generate",
+    "prisma:db:push": "yarn workspace server prisma:db:push",
+    "prisma:update": "yarn workspace server prisma:update"
   },
   "devDependencies": {
     "prettier": "^2.5.1",
