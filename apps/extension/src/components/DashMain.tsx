@@ -1,5 +1,6 @@
 import React from 'react';
-import { FolderOpenIcon } from '@heroicons/react/solid';
+import { FolderOpenIcon, StarIcon, UserAddIcon } from '@heroicons/react/solid';
+import { PrimaryButtonSmall, WhiteButtonSmall } from './Buttons';
 
 export function DashMain() {
   return (
@@ -16,13 +17,19 @@ interface HeaderProps {
 function Header({ collectionName }: HeaderProps) {
   return (
     <div className="flex justify-between p-4">
-      <div className="flex">
+      <div className="flex items-center">
         <FolderOpenIcon className="w-6 mr-2" />
-        <h1 className="text-lg leading-7 font-medium">{collectionName}</h1>
+        <h1 className="text-lg font-medium">{collectionName}</h1>
       </div>
       <div className="flex">
-        <div>meow</div>
-        <div>woof</div>
+        <WhiteButtonSmall>
+          <UserAddIcon className="-ml-0.5 mr-1 h-4 w-4" aria-hidden="true" />
+          Invite
+        </WhiteButtonSmall>
+        <PrimaryButtonSmall classes="ml-1">
+          <StarIcon className="-ml-0.5 mr-1 h-4 w-4" aria-hidden="true" />
+          Add link
+        </PrimaryButtonSmall>
       </div>
     </div>
   );
