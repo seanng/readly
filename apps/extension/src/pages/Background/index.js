@@ -1,6 +1,36 @@
 console.log('This is the background page.');
 console.log('Put the background scripts here.');
 
+async function setPopupOnLoad() {
+  const token = await chrome.storage.local.get('token');
+  // TODO: set auth header bearer token
+  chrome.action.setPopup({
+    popup: token ? 'dash_popup.html' : 'auth_popup.html',
+  });
+}
+
+async function messageHandler(req, sender, sendResponse) {
+  // Authenticated
+  if (req.token) {
+    chrome.storage.local.set({ token: req.token });
+    chrome.action.setPopup({ popup: 'dash_popup.html' });
+    sendResponse({ success: true });
+    return;
+  }
+  // Signout
+  if (req.signout) {
+    chrome.storage.local.remove('token');
+    chrome.action.setPopup({ popup: 'auth_popup.html' });
+    sendResponse({ success: true });
+    return;
+  }
+}
+
+chrome.runtime.onInstalled.addListener(setPopupOnLoad);
+chrome.runtime.onStartup.addListener(setPopupOnLoad);
+chrome.runtime.onMessageExternal.addListener(messageHandler);
+chrome.runtime.onMessage.addListener(messageHandler);
+
 // Installation listener
 // chrome.runtime.onInstalled.addListener(() => {
 //   ping api to see if user is logged in using chrome.cookies.get?
@@ -10,31 +40,6 @@ console.log('Put the background scripts here.');
 //     console.log(`${key} set to ${value}`);
 //   });
 // });
-
-// after logging in, send message to background listener and store auth status in cache.
-// https://stackoverflow.com/questions/45995342/chrome-extension-best-practise-when-it-comes-to-authentication
-// https://developer.chrome.com/docs/extensions/mv2/messaging/#external-webpage
-
-chrome.runtime.onMessageExternal.addListener(function (
-  req,
-  sender,
-  sendResponse
-) {
-  // if (sender.url === blacklistedWebsite) return
-  if (req.token) {
-    chrome.storage.local.set({ token: req.token });
-    chrome.action.setPopup({ popup: 'dash_popup.html' });
-    sendResponse({ success: true });
-  }
-});
-
-chrome.runtime.onMessage.addListener(function (req, sender, sendResponse) {
-  if (req.signout) {
-    chrome.storage.local.remove('token');
-    chrome.action.setPopup({ popup: 'auth_popup.html' });
-    sendResponse({ success: true });
-  }
-});
 
 // https://stackoverflow.com/a/10071395/6007700 -> Update existing open tabs
 // chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
