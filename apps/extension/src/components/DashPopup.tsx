@@ -25,12 +25,6 @@ export const DashPopup: React.FC = () => {
   );
 };
 
-function handleSignout() {
-  chrome.runtime.sendMessage({ signout: true }, ({ success }) => {
-    if (success) window.close();
-  });
-}
-
 function useSetPopupWidth() {
   useEffect(() => {
     const $body = document.querySelector('body');

@@ -1,8 +1,6 @@
 import { useForm } from "react-hook-form";
-import axios from "lib/axios";
 import { EMAIL_REGEX } from "shared/constants";
-
-const CHROME_RUNTIME_NOT_FOUND = "chrome runtime not found";
+import { authenticate } from "utils/helpers";
 
 export default function Signup() {
   const {
@@ -16,36 +14,7 @@ export default function Signup() {
     email: string;
     password: string;
   }): Promise<void> => {
-    try {
-      const { data } = await axios.post("/auth/signup", input);
-      // save jwt to cookie?
-      // https://medium.com/@ryanchenkie_40935/react-authentication-how-to-store-jwt-in-a-cookie-346519310e81
-      const payload = {
-        token: data.token,
-        email: input.email,
-        // add user info
-      };
-      if (!chrome?.runtime?.sendMessage) {
-        throw new Error(CHROME_RUNTIME_NOT_FOUND);
-      }
-      chrome.runtime.sendMessage(
-        process.env.NEXT_PUBLIC_EXTENSION_ID,
-        payload,
-        function onSendSuccess(message) {
-          if (message.success) {
-            // do something
-          } else {
-            // do something else
-          }
-        }
-      );
-    } catch (error) {
-      if (error.message === CHROME_RUNTIME_NOT_FOUND) {
-        console.log(CHROME_RUNTIME_NOT_FOUND);
-      } else {
-        throw error;
-      }
-    }
+    await authenticate("/auth/signup", input);
   };
 
   return (

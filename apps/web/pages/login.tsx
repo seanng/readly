@@ -1,5 +1,6 @@
 import { useForm } from "react-hook-form";
 import { EMAIL_REGEX } from "shared/constants";
+import { authenticate } from "utils/helpers";
 
 export default function Login() {
   const {
@@ -9,15 +10,11 @@ export default function Login() {
     formState: { errors, isSubmitting },
   } = useForm();
 
-  const onSubmit = async (data: {
+  const onSubmit = async (input: {
     email: string;
     password: string;
   }): Promise<void> => {
-    try {
-      console.log(data);
-      // sign up -> POST to api/login
-      //
-    } catch (error) {}
+    await authenticate("/auth/login", input);
   };
 
   return (
