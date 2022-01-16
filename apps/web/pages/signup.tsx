@@ -42,6 +42,8 @@ export default function Signup() {
     } catch (error) {
       if (error.message === CHROME_RUNTIME_NOT_FOUND) {
         console.log(CHROME_RUNTIME_NOT_FOUND);
+      } else {
+        throw error;
       }
     }
   };

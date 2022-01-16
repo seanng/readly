@@ -70,7 +70,11 @@ function Body({ collections }: { collections: Collection[] }) {
 
 function Footer() {
   function handleSignout() {
-    chrome.runtime.sendMessage({ signout: true });
+    chrome.runtime.sendMessage({ signout: true }, ({ success }) => {
+      if (success) {
+        window.location.href = 'auth_popup.html';
+      }
+    });
   }
   return (
     <div className="flex-shrink-0 border-t border-gray-100 pt-6 pl-2">

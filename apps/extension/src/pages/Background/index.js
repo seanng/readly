@@ -2,8 +2,8 @@ console.log('This is the background page.');
 console.log('Put the background scripts here.');
 
 async function setPopupOnLoad() {
-  const token = await chrome.storage.local.get('token');
-  // TODO: set auth header bearer token
+  const { token } = await chrome.storage.local.get(['token']);
+  // TODO: set auth header bearer token on axios
   chrome.action.setPopup({
     popup: token ? 'dash_popup.html' : 'auth_popup.html',
   });
@@ -12,15 +12,15 @@ async function setPopupOnLoad() {
 async function messageHandler(req, sender, sendResponse) {
   // Authenticated
   if (req.token) {
-    await chrome.storage.local.set({ token: req.token });
-    await chrome.action.setPopup({ popup: 'dash_popup.html' });
+    chrome.storage.local.set({ token: req.token });
+    chrome.action.setPopup({ popup: 'dash_popup.html' });
     sendResponse({ success: true });
     return;
   }
   // Signout
   if (req.signout) {
     chrome.storage.local.remove('token');
-    await chrome.action.setPopup({ popup: 'auth_popup.html' });
+    chrome.action.setPopup({ popup: 'auth_popup.html' });
     sendResponse({ success: true });
     return;
   }
