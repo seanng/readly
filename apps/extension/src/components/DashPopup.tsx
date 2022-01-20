@@ -1,26 +1,32 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DashSidebar, DashMain } from 'components';
 
 const collections = [
   {
     name: 'Web 3.0 stuff',
-    current: true,
-    href: '#',
   },
   {
     name: 'Job prep 2022',
-    current: false,
-    href: '#',
+  },
+  {
+    name: 'Job prep 2022',
   },
 ];
 
 export const DashPopup: React.FC = () => {
   useSetPopupWidth();
-
+  const [currentCollectionIdx, setCurrentCollectionIdx] = useState(-1);
+  const handleNavItemClick = (idx: number) => () => {
+    setCurrentCollectionIdx(idx);
+  };
   return (
     <div className="flex bg-gray-100 h-full max-w-full">
-      <DashSidebar collections={collections} />
-      <DashMain />
+      <DashSidebar
+        collections={collections}
+        onNavItemClick={handleNavItemClick}
+        currentNavItemIdx={currentCollectionIdx}
+      />
+      <DashMain collection={collections[currentCollectionIdx]} />
     </div>
   );
 };

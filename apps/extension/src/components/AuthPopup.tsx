@@ -4,7 +4,6 @@ import { PrimaryButtonWide, WhiteButtonWide } from 'ui';
 const webUrl = 'http://localhost:3001';
 
 export const AuthPopup: React.FC = () => {
-  useSetPopupDimensions();
   const goTo = (url: string) => (e: SyntheticEvent) => {
     e.preventDefault();
     const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
@@ -31,14 +30,3 @@ export const AuthPopup: React.FC = () => {
     </div>
   );
 };
-
-function useSetPopupDimensions() {
-  useEffect(() => {
-    const $body = document.querySelector('body');
-    // visible width can sometimes be less than 800px
-    if ($body) {
-      $body.style.width = `${Math.min(window.innerWidth, 440)}px`;
-      $body.style.height = `${400}px`;
-    }
-  }, []);
-}

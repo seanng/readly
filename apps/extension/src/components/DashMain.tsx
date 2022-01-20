@@ -1,13 +1,23 @@
 import React from 'react';
 import { FolderOpenIcon, StarIcon, UserAddIcon } from '@heroicons/react/solid';
 import { PrimaryButtonSmall, WhiteButtonSmall } from 'ui';
+import { Collection } from 'utils/types';
 
-export function DashMain() {
-  return (
+interface DashMainProps {
+  collection: Collection;
+}
+export function DashMain({ collection }: DashMainProps) {
+  return collection ? (
     <div className="flex-1 shrink-0">
-      <Header collectionName={'Web 3.0'} />
+      <Header collectionName={collection.name} />
     </div>
+  ) : (
+    <EmptyView />
   );
+}
+
+function EmptyView() {
+  return <div className="flex-1 shrink-0"></div>;
 }
 
 interface HeaderProps {

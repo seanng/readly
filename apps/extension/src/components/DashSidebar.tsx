@@ -3,24 +3,27 @@ import { classNames } from 'utils/helpers';
 import { SecondaryButtonSmall } from 'ui';
 import { CogIcon, LogoutIcon, PlusIcon } from '@heroicons/react/solid';
 import { IconLink } from './Links';
-
-interface Collection {
-  name: string;
-  current: boolean;
-  href: string;
-}
+import { Collection } from 'utils/types';
 
 interface SidebarProps {
   collections: Collection[];
+  onNavItemClick: (i: number) => () => void;
+  currentNavItemIdx: number;
 }
 
-export function DashSidebar({ collections }: SidebarProps) {
+export function DashSidebar({
+  collections,
+  onNavItemClick,
+  currentNavItemIdx,
+}: SidebarProps) {
   return (
     <div className="flex flex-col min-h-0 border-r bg-white border-gray-200 pt-5">
-      {/* <div className="flex-1 pb-4 overflow-y-auto"> */}
       <Header />
-      <Body collections={collections} />
-      {/* </div> */}
+      <Body
+        collections={collections}
+        onNavItemClick={onNavItemClick}
+        currentNavItemIdx={currentNavItemIdx}
+      />
       <Footer />
     </div>
   );
@@ -42,19 +45,27 @@ function Header() {
   );
 }
 
-function Body({ collections }: { collections: Collection[] }) {
+function Body({
+  collections,
+  onNavItemClick,
+  currentNavItemIdx,
+}: SidebarProps) {
   return (
-    <div className="px-2 flex-1 border-t border-gray-100">
+    <div
+      className="px-2 flex-1 border-t border-gray-100 overflow-y-auto"
+      style={{ maxHeight: '436px' }}
+    >
       <div className="py-2 text-sm leading-5 font-normal text-gray-400">
         Collections
       </div>
       <nav className="flex-1 space-y-1">
-        {collections.map((item) => (
+        {collections.map((item, i) => (
           <a
             key={item.name}
-            href={item.href}
+            onClick={onNavItemClick(i)}
+            href="#"
             className={classNames(
-              item.current
+              currentNavItemIdx === i
                 ? 'bg-gray-100 text-gray-900'
                 : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
               'group flex items-center px-2 py-2 text-sm font-medium leading-5 rounded-md'
