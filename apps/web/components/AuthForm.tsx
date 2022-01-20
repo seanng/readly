@@ -1,4 +1,5 @@
 import { useForm } from "react-hook-form";
+import { useState, useEffect } from "react";
 import {
   PrimaryButtonWide,
   NavLink,
@@ -7,7 +8,7 @@ import {
   GoogleButton,
 } from "ui";
 import { EMAIL_REGEX, LOGIN, SIGNUP } from "shared/constants";
-import { setAuthCookie } from "utils/helpers";
+import { setAuthCookie, getAuthTokenFromCookie } from "utils/helpers";
 import axios from "lib/axios";
 
 const CHROME_RUNTIME_NOT_FOUND = "chrome runtime not found";
@@ -36,6 +37,7 @@ const texts = {
 };
 
 export function AuthForm({ type = LOGIN }) {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const {
     handleSubmit,
     register,
@@ -43,10 +45,7 @@ export function AuthForm({ type = LOGIN }) {
     watch,
     formState: { errors, isSubmitting },
   } = useForm();
-  console.log("errors: ", errors);
-
   const password = watch("password");
-
   const onSubmit = async (input: {
     email: string;
     password: string;
@@ -57,6 +56,7 @@ export function AuthForm({ type = LOGIN }) {
         password: input.password,
       });
       setAuthCookie(data.token);
+      setIsAuthenticated(true);
       // chrome.runtime.sendMessage(
       //   process.env.NEXT_PUBLIC_EXTENSION_ID,
       //   { token: data.token },
@@ -80,7 +80,14 @@ export function AuthForm({ type = LOGIN }) {
     }
   };
 
-  return (
+  useEffect(() => {
+    const cookie = getAuthTokenFromCookie();
+    if (cookie) setIsAuthenticated(true);
+  }, []);
+
+  return isAuthenticated ? (
+    <AuthenticatedView />
+  ) : (
     <div className="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <style jsx global>{`
         body {
@@ -188,6 +195,31 @@ export function AuthForm({ type = LOGIN }) {
               </span>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AuthenticatedView() {
+  return (
+    <div className="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <style jsx global>{`
+        body {
+          background-color: #f9fafb;
+        }
+      `}</style>
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <img
+          className="mx-auto h-12 w-auto"
+          src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
+          alt="Workflow"
+        />
+        <h2 className="mt-6 text-center text-xl font-semibold text-gray-900 leading-7">
+          You're signed in!
+        </h2>
+        <div className="mt-4 text-center text-sm font-normal">
+          You may close this page and continue on extension pop-up.
         </div>
       </div>
     </div>
