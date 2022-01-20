@@ -23,7 +23,6 @@ export function Input({
   };
   error?: { message: string };
 }) {
-  console.log("error: ", error);
   return (
     <div className={className}>
       {label && (
