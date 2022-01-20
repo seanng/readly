@@ -1,6 +1,6 @@
 import React from 'react';
 import { classNames } from 'utils/helpers';
-import { SecondaryButtonSmall } from './Buttons';
+import { SecondaryButtonSmall } from 'ui';
 import { CogIcon, LogoutIcon, PlusIcon } from '@heroicons/react/solid';
 import { IconLink } from './Links';
 
@@ -69,12 +69,12 @@ function Body({ collections }: { collections: Collection[] }) {
 }
 
 function Footer() {
-  function handleSignout() {
-    chrome.runtime.sendMessage({ signout: true }, ({ success }) => {
-      if (success) {
-        window.location.href = 'auth_popup.html';
-      }
+  async function handleSignout() {
+    await chrome.cookies.remove({
+      url: 'http://localhost:3001',
+      name: 'cbe:token',
     });
+    window.location.href = 'auth_popup.html';
   }
   return (
     <div className="flex-shrink-0 border-t border-gray-100 pt-6 pl-2">

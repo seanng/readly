@@ -1,32 +1,14 @@
 import axios from "lib/axios";
-import { LOCAL_STORAGE_KEY } from "shared/constants";
+import Cookies from "universal-cookie";
+import { AUTH_TOKEN_KEY, LOCAL_STORAGE_KEY } from "shared/constants";
 
-const CHROME_RUNTIME_NOT_FOUND = "chrome runtime not found";
+export const cookies = new Cookies();
 
-export async function authenticate(
-  route: string,
-  input: { email: string; password: string }
-) {
-  try {
-    const { data } = await axios.post(route, input);
-    localStorage.setItem(LOCAL_STORAGE_KEY, data.token);
-    const payload = {
-      token: data.token,
-      email: input.email,
-    };
-    if (!chrome?.runtime?.sendMessage) {
-      throw new Error(CHROME_RUNTIME_NOT_FOUND);
-    }
-    chrome.runtime.sendMessage(
-      process.env.NEXT_PUBLIC_EXTENSION_ID,
-      payload,
-      function onSendSuccess(message) {}
-    );
-  } catch (e) {
-    if (e.message === CHROME_RUNTIME_NOT_FOUND) {
-      console.log(CHROME_RUNTIME_NOT_FOUND);
-    } else {
-      throw e;
-    }
-  }
-}
+export const getAuthTokenFromCookie = () => cookies.get(AUTH_TOKEN_KEY);
+
+export const setAuthCookie = (token) =>
+  cookies.set(AUTH_TOKEN_KEY, token, {
+    path: "/",
+  });
+
+export const removeAuthTokenFromCookie = () => cookies.remove(AUTH_TOKEN_KEY);

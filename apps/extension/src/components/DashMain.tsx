@@ -1,6 +1,6 @@
 import React from 'react';
 import { FolderOpenIcon, StarIcon, UserAddIcon } from '@heroicons/react/solid';
-import { PrimaryButtonSmall, WhiteButtonSmall } from './Buttons';
+import { PrimaryButtonSmall, WhiteButtonSmall } from 'ui';
 
 export function DashMain() {
   return (
