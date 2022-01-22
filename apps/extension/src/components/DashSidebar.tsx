@@ -24,7 +24,7 @@ export function DashSidebar({
   currentNavItemIdx,
 }: SidebarProps) {
   return (
-    <div className="flex flex-col min-h-0 border-r bg-white border-gray-200 pt-5 max-w-[239px]">
+    <div className="flex flex-col min-h-0 border-r bg-white border-gray-200 pt-5 ">
       <Header />
       <Body
         collections={collections}

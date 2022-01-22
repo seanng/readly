@@ -11,7 +11,7 @@ export function DashMain({ collection }: DashMainProps) {
   // TODO: add empty state (if no collection is selected/available in sidebar)
   console.log('collection: ', collection);
   return (
-    <div className="flex-1 shrink-0">
+    <div>
       <Header collectionName={collection?.name} />
       {collection?.links?.length === 0 ? <NoLinksView /> : <div />}
     </div>

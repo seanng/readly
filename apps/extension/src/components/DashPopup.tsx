@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { DashSidebar, DashMain } from 'components';
+import Split from 'react-split';
 
 const SAMPLE_LINKS = [
   {
@@ -72,14 +73,19 @@ export const DashPopup: React.FC = () => {
     setCurrentCollectionIdx(idx);
   };
   return (
-    <div className="flex bg-gray-100 h-full max-w-full">
+    <Split
+      className="flex bg-gray-100 h-full max-w-full"
+      // TODO: reconfigure after logo change.
+      sizes={[35, 65]}
+      minSize={[180, 350]}
+    >
       <DashSidebar
         collections={collections}
         onNavItemClick={handleNavItemClick}
         currentNavItemIdx={currentCollectionIdx}
       />
       <DashMain collection={collections[currentCollectionIdx]} />
-    </div>
+    </Split>
   );
 };
 
