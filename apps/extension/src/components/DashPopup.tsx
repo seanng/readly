@@ -46,18 +46,21 @@ const SAMPLE_PARTICIPANTS = [
 
 const collections = [
   {
+    id: 'abcdef',
     name: 'Web 3.0 stuffffffff stuffffffff stuffffffff stuffffffff stuffffffff',
     links: SAMPLE_LINKS,
     participants: SAMPLE_PARTICIPANTS,
   },
   {
+    id: 'abcdefg',
     name: 'Job prep 2022',
     links: SAMPLE_LINKS,
     participants: SAMPLE_PARTICIPANTS,
   },
   {
+    id: 'abcdegf',
     name: 'Job prep 2022',
-    links: SAMPLE_LINKS,
+    links: [],
     participants: SAMPLE_PARTICIPANTS,
   },
 ];

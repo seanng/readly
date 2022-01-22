@@ -65,7 +65,7 @@ function Body({
       <nav className="flex-1 space-y-1">
         {collections.map((item, i) => (
           <a
-            key={item.name}
+            key={item.id}
             onClick={onNavItemClick(i)}
             href="#"
             className={classNames(

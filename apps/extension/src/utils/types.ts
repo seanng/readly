@@ -10,6 +10,7 @@ export interface Link {
 }
 
 export interface Collection {
+  id: string;
   name: string;
   participants: Participant[];
   links: Link[];
