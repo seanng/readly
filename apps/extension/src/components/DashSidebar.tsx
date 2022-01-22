@@ -1,7 +1,14 @@
 import React from 'react';
 import { classNames } from 'utils/helpers';
 import { SecondaryButtonSmall } from 'ui';
-import { CogIcon, LogoutIcon, PlusIcon } from '@heroicons/react/solid';
+import {
+  CogIcon,
+  LogoutIcon,
+  PlusIcon,
+  LinkIcon,
+  UserCircleIcon,
+  DotsHorizontalIcon,
+} from '@heroicons/react/solid';
 import { IconLink } from './Links';
 import { Collection } from 'utils/types';
 
@@ -17,7 +24,7 @@ export function DashSidebar({
   currentNavItemIdx,
 }: SidebarProps) {
   return (
-    <div className="flex flex-col min-h-0 border-r bg-white border-gray-200 pt-5">
+    <div className="flex flex-col min-h-0 border-r bg-white border-gray-200 pt-5 max-w-[239px]">
       <Header />
       <Body
         collections={collections}
@@ -51,10 +58,7 @@ function Body({
   currentNavItemIdx,
 }: SidebarProps) {
   return (
-    <div
-      className="px-2 flex-1 border-t border-gray-100 overflow-y-auto"
-      style={{ maxHeight: '436px' }}
-    >
+    <div className="px-2 flex-1 border-t border-gray-100 overflow-y-auto max-h-[436px]">
       <div className="py-2 text-sm leading-5 font-normal text-gray-400">
         Collections
       </div>
@@ -68,10 +72,17 @@ function Body({
               currentNavItemIdx === i
                 ? 'bg-gray-100 text-gray-900'
                 : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
-              'group flex items-center px-2 py-2 text-sm font-medium leading-5 rounded-md'
+              'group flex items-center px-2 py-2 text-sm font-medium leading-5 rounded-md justify-between'
             )}
           >
-            {item.name}
+            <div className="truncate">{item.name}</div>
+            <div className="ml-2 hidden group-hover:flex font-normal text-gray-400 text-xs items-center">
+              <div>{item.participants.length}</div>
+              <UserCircleIcon className="w-3 h-3 ml-0.5 mr-1" />
+              <div>{item.links.length}</div>
+              <LinkIcon className="w-3 h-3 ml-0.5 mr-2" />
+              <DotsHorizontalIcon className="text-gray-900 w-4 h-4" />
+            </div>
           </a>
         ))}
       </nav>

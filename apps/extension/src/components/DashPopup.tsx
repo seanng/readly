@@ -1,15 +1,64 @@
 import React, { useEffect, useState } from 'react';
 import { DashSidebar, DashMain } from 'components';
 
+const SAMPLE_LINKS = [
+  {
+    id: 'abcdef',
+    url: 'https://google.com',
+  },
+  {
+    id: 'abcdefg',
+    url: 'https://google.com',
+  },
+  {
+    id: 'abcdeff',
+    url: 'https://google.com',
+  },
+];
+
+const SAMPLE_PARTICIPANTS = [
+  {
+    id: '1',
+    role: 'creator',
+    email: 'shonum@gmail.com',
+  },
+  {
+    id: '2',
+    role: 'editor',
+    email: 'shonum2@gmail.com',
+  },
+  {
+    id: '3',
+    role: 'editor',
+    email: 'shonum2@gmail.com',
+  },
+  {
+    id: '4',
+    role: 'editor',
+    email: 'shonum2@gmail.com',
+  },
+  {
+    id: '5',
+    role: 'invitee',
+    email: 'shonum3@gmail.com',
+  },
+];
+
 const collections = [
   {
-    name: 'Web 3.0 stuff',
+    name: 'Web 3.0 stuffffffff stuffffffff stuffffffff stuffffffff stuffffffff',
+    links: SAMPLE_LINKS,
+    participants: SAMPLE_PARTICIPANTS,
   },
   {
     name: 'Job prep 2022',
+    links: SAMPLE_LINKS,
+    participants: SAMPLE_PARTICIPANTS,
   },
   {
     name: 'Job prep 2022',
+    links: SAMPLE_LINKS,
+    participants: SAMPLE_PARTICIPANTS,
   },
 ];
 
