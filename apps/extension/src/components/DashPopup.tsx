@@ -77,7 +77,9 @@ export const DashPopup: React.FC = () => {
       className="flex bg-gray-100 h-full max-w-full"
       // TODO: reconfigure after logo change.
       sizes={[35, 65]}
-      minSize={[180, 350]}
+      minSize={[180, 360]}
+      snapOffset={0}
+      gutterSize={5}
     >
       <DashSidebar
         collections={collections}

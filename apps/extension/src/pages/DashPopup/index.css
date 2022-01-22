@@ -27,5 +27,4 @@ code {
 .gutter.gutter-horizontal {
   cursor: col-resize;
   background-color: transparent;
-  width: 2px;
 }

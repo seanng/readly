@@ -41,7 +41,7 @@ function Header() {
     <div className="flex justify-between px-2 pb-5">
       <img
         className="h-8 w-auto"
-        src="https://tailwindui.com/img/logos/workflow-logo-indigo-600-mark-gray-800-text.svg"
+        src="https://tailwindui.com/img/logos/workflow-mark.svg?color=indigo&shade=600"
         alt="Workflow"
       />
       <SecondaryButtonSmall>

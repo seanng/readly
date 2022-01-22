@@ -41,12 +41,14 @@ interface HeaderProps {
 function Header({ collectionName }: HeaderProps) {
   return (
     <>
-      <div className="flex justify-between p-4">
-        <div className="flex items-center">
-          <FolderOpenIcon className="w-6 mr-2" />
-          <h1 className="text-lg leading-7 font-medium">{collectionName}</h1>
+      <div className="flex pt-4 pl-2 pr-3 max-w-full">
+        <div className="flex flex-1 items-center pr-2">
+          <FolderOpenIcon className="w-6 mr-2 flex-none" />
+          <div className="flex-auto w-32 text-lg leading-7 font-medium truncate">
+            {collectionName}
+          </div>
         </div>
-        <div className="flex">
+        <div className="flex flex-none">
           <WhiteButtonSmall>
             <UserAddIcon className="-ml-0.5 mr-1 h-4 w-4" aria-hidden="true" />
             Invite
