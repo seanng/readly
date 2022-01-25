@@ -4,5 +4,7 @@ export interface UserInput {
 }
 
 export interface AuthPayload {
+  id: string;
+  email: string;
   token: string;
 }

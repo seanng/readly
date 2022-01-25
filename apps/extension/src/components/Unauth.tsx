@@ -3,7 +3,7 @@ import { PrimaryButtonWide, WhiteButtonWide } from 'ui';
 
 const webUrl = 'http://localhost:3001';
 
-export const AuthPopup: React.FC = () => {
+export const Unauth: React.FC = () => {
   const goTo = (url: string) => (e: SyntheticEvent) => {
     e.preventDefault();
     const newWindow = window.open(url, '_blank', 'noopener,noreferrer');

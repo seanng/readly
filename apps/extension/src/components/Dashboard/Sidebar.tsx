@@ -9,19 +9,16 @@ import {
   UserCircleIcon,
   DotsHorizontalIcon,
 } from '@heroicons/react/solid';
-import { IconLink } from './Links';
+import IconLink from './SidebarIconLink';
 import { Collection } from 'utils/types';
 
-interface SidebarProps {
-  collections: Collection[];
-  onNavItemClick: (i: number) => () => void;
-  currentNavItemIdx: number;
-}
+type SidebarProps = BodyProps & FooterProps;
 
-export function DashSidebar({
+export default function Sidebar({
   collections,
   onNavItemClick,
   currentNavItemIdx,
+  onSignout,
 }: SidebarProps) {
   return (
     <div className="flex flex-col min-h-0 border-r bg-white border-gray-200 pt-5 ">
@@ -31,7 +28,7 @@ export function DashSidebar({
         onNavItemClick={onNavItemClick}
         currentNavItemIdx={currentNavItemIdx}
       />
-      <Footer />
+      <Footer onSignout={onSignout} />
     </div>
   );
 }
@@ -52,11 +49,13 @@ function Header() {
   );
 }
 
-function Body({
-  collections,
-  onNavItemClick,
-  currentNavItemIdx,
-}: SidebarProps) {
+interface BodyProps {
+  collections: Collection[];
+  onNavItemClick: (i: number) => () => void;
+  currentNavItemIdx: number;
+}
+
+function Body({ collections, onNavItemClick, currentNavItemIdx }: BodyProps) {
   return (
     <div className="px-2 flex-1 border-t border-gray-100 overflow-y-auto max-h-[436px]">
       <div className="py-2 text-sm leading-5 font-normal text-gray-400">
@@ -90,14 +89,11 @@ function Body({
   );
 }
 
-function Footer() {
-  async function handleSignout() {
-    await chrome.cookies.remove({
-      url: 'http://localhost:3001',
-      name: 'cbe:token',
-    });
-    window.location.href = 'auth_popup.html';
-  }
+interface FooterProps {
+  onSignout: () => void;
+}
+
+function Footer({ onSignout }: FooterProps) {
   return (
     <div className="flex-shrink-0 border-t border-gray-100 pt-6 pl-2">
       <IconLink name="Settings" Icon={CogIcon} classes="pb-6 px-2" />
@@ -105,7 +101,7 @@ function Footer() {
         name="Logout"
         Icon={LogoutIcon}
         classes="pb-6 px-2"
-        onClick={handleSignout}
+        onClick={onSignout}
       />
     </div>
   );

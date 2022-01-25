@@ -2,7 +2,7 @@ import React from 'react';
 
 import { classNames } from 'utils/helpers';
 
-interface IconLinkProps {
+interface SidebarIconLinkProps {
   name: string;
   Icon: React.ElementType;
   href?: string;
@@ -11,14 +11,14 @@ interface IconLinkProps {
   onClick?: () => void;
 }
 
-export function IconLink({
+export default function SidebarIconLink({
   name = '',
   Icon,
   href = '#',
   classes = '',
   iconClasses = '',
   onClick,
-}: IconLinkProps) {
+}: SidebarIconLinkProps) {
   return (
     <a
       href={href}

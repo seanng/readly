@@ -1,19 +1,23 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { FolderOpenIcon, StarIcon, UserAddIcon } from '@heroicons/react/solid';
 import { PrimaryButtonSmall, WhiteButtonSmall } from 'ui';
-import { Collection } from 'utils/types';
-import { NoLinksIcon } from './index';
+import { Collection, Link } from 'utils/types';
+import { getStorageItems } from 'utils/helpers';
+import NoLinksIcon from './NoLinksIcon';
 
 interface DashMainProps {
   collection: Collection;
 }
-export function DashMain({ collection }: DashMainProps) {
+export default function Main({ collection }: DashMainProps) {
   // TODO: add empty state (if no collection is selected/available in sidebar)
-  console.log('collection: ', collection);
   return (
-    <div>
+    <div className="pl-2 pr-3 max-w-full">
       <Header collectionName={collection?.name} />
-      {collection?.links?.length === 0 ? <NoLinksView /> : <div />}
+      {collection?.links?.length === 0 ? (
+        <NoLinksView />
+      ) : (
+        <Body links={collection?.links} />
+      )}
     </div>
   );
 }
@@ -41,7 +45,7 @@ interface HeaderProps {
 function Header({ collectionName }: HeaderProps) {
   return (
     <>
-      <div className="flex pt-4 pl-2 pr-3 max-w-full">
+      <div className="flex-none flex pt-4 w-full mb-4">
         <div className="flex flex-1 items-center pr-2">
           <FolderOpenIcon className="w-6 mr-2 flex-none" />
           <div className="flex-auto w-32 text-lg leading-7 font-medium truncate">
@@ -61,5 +65,42 @@ function Header({ collectionName }: HeaderProps) {
       </div>
       {/* TODO: add description */}
     </>
+  );
+}
+
+function Body({ links }: { links: Link[] }) {
+  const [userId, setUserId] = useState('');
+  useEffect(() => {
+    async function load() {
+      const { id } = await getStorageItems();
+      setUserId(id);
+    }
+    load();
+  }, []);
+
+  return (
+    <div className="flex flex-col flex-1 max-h-[436px] overflow-y-auto space-y-2">
+      {links?.map((link, i) => (
+        <div key={link.id} className="flex bg-white rounded-md p-2">
+          <div>icon</div>
+          <div className="flex flex-col justify-center space-y-1">
+            <h4 className="text-gray-900 text-sm leading-5 font-medium">
+              {link.title}
+            </h4>
+            <div className="flex space-x-3 text-xs leading-4 font-normal text-gray-500">
+              <span>url</span>
+              <span>•</span>
+              <span>Added today</span>
+              <span>•</span>
+              {link.readerInfo[userId]?.hasReadIt ? (
+                <span className="text-blue-700">Unread</span>
+              ) : (
+                <span>Read!</span>
+              )}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }

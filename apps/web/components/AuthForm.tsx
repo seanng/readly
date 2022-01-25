@@ -56,12 +56,11 @@ export function AuthForm({ type = LOGIN }) {
         password: input.password,
       });
       setAuthCookie(data.token);
+      chrome.runtime.sendMessage(process.env.NEXT_PUBLIC_EXTENSION_ID, {
+        message: "AUTHENTICATE",
+        data,
+      });
       setIsAuthenticated(true);
-      // chrome.runtime.sendMessage(
-      //   process.env.NEXT_PUBLIC_EXTENSION_ID,
-      //   { token: data.token },
-      //   function onSendSuccess(message) {}
-      // );
     } catch (e) {
       if (e?.response?.status === 401) {
         setError("email", {

@@ -6,6 +6,32 @@ const AUTH_TOKEN_NAME = 'cbe:token';
 // TODO: change.
 const WEB_DOMAIN = 'http://localhost:3001';
 
+/* LISTENERS */
+chrome.runtime.onInstalled.addListener(handleExtensionStartup);
+chrome.runtime.onStartup.addListener(handleExtensionStartup);
+chrome.runtime.onMessageExternal.addListener(handleIncomingMessages);
+chrome.runtime.onMessage.addListener(handleIncomingMessages);
+chrome.cookies.onChanged.addListener(handleCookieChange);
+
+/* HANDLERS */
+async function handleIncomingMessages(req, sender, sendResponse) {
+  if (req.message === 'SIGNOUT') signout();
+  if (req.message === 'AUTHENTICATE') authenticate(req.data);
+}
+
+async function handleCookieChange({ cause, cookie, removed }) {
+  if (cookie?.name === AUTH_TOKEN_NAME && cause !== 'overwrite') {
+    chrome.action.setPopup({
+      popup: removed ? 'popup_unauth.html' : 'popup_dashboard.html',
+    });
+  }
+}
+
+async function handleExtensionStartup() {
+  await setPopupOnLoad();
+}
+
+/* HELPER FUNCTIONS */
 async function getCookie() {
   const cookie = await chrome.cookies.get({
     name: AUTH_TOKEN_NAME,
@@ -17,32 +43,18 @@ async function getCookie() {
 async function setPopupOnLoad() {
   const cookie = await getCookie();
   chrome.action.setPopup({
-    popup: cookie?.value ? 'dash_popup.html' : 'auth_popup.html',
+    popup: cookie?.value ? 'popup_dashboard.html' : 'popup_unauth.html',
   });
 }
 
-chrome.cookies.onChanged.addListener(function ({ cause, cookie, removed }) {
-  if (cookie?.name === AUTH_TOKEN_NAME && cause !== 'overwrite') {
-    chrome.action.setPopup({
-      popup: removed ? 'auth_popup.html' : 'dash_popup.html',
-    });
-  }
-});
-
-async function messageHandler(req, sender, sendResponse) {
-  if (req.profile) {
-    chrome.storage.local.set({ profile: req.profile });
-  }
-  // Authenticated (come from web)
-  // Signout (come from ext. TODO: come from web too.)
-  // if (req.signout) {
-  //   chrome.storage.local.remove('token');
-  //   chrome.action.setPopup({ popup: 'auth_popup.html' });
-  //   sendResponse({ success: true });
-  //   return;
-  // }
+function signout() {
+  chrome.cookies.remove({
+    url: 'http://localhost:3001',
+    name: 'cbe:token',
+  });
+  chrome.storage.local.clear();
 }
 
-chrome.runtime.onInstalled.addListener(setPopupOnLoad);
-chrome.runtime.onStartup.addListener(setPopupOnLoad);
-chrome.runtime.onMessageExternal.addListener(messageHandler);
+function authenticate(data) {
+  chrome.storage.local.set(data);
+}

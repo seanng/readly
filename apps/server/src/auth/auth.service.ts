@@ -36,6 +36,8 @@ export class AuthService {
     const user = await this.validateUser(input.email, input.password);
     if (!user) throw new UnauthorizedException();
     return {
+      id: user.id,
+      email: input.email,
       token: this.jwtService.sign({ email: user.email, sub: user.id }),
     };
   }
@@ -47,6 +49,8 @@ export class AuthService {
         password: this.encryptionService.hash(input.password),
       });
       return {
+        id: user.id,
+        email: input.email,
         token: this.jwtService.sign({ email: user.email, sub: user.id }),
       };
     } catch (e) {
