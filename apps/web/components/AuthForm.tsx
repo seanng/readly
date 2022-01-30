@@ -58,7 +58,11 @@ export function AuthForm({ type = LOGIN }) {
       setAuthCookie(data.token);
       chrome.runtime.sendMessage(process.env.NEXT_PUBLIC_EXTENSION_ID, {
         message: "AUTHENTICATE",
-        data,
+        data: {
+          userId: data.id,
+          token: data.token,
+          email: data.email,
+        },
       });
       setIsAuthenticated(true);
     } catch (e) {
