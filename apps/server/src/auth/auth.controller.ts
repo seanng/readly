@@ -1,20 +1,20 @@
 import { Controller, Request, Body, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { UserInput } from './auth.interface';
+import { UserInput, AuthPayload } from './auth.interface';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private service: AuthService) {}
 
   @Post('login')
-  async login(@Body() req: UserInput) {
-    return this.authService.login(req);
+  async login(@Body() body: UserInput): Promise<AuthPayload> {
+    return this.service.login(body);
   }
 
   @Post('signup')
-  async signup(@Body() req: UserInput) {
+  async signup(@Body() body: UserInput): Promise<AuthPayload> {
     try {
-      return this.authService.signup(req);
+      return this.service.signup(body);
     } catch (error) {
       console.log('error n controller: ', error);
       throw error;

@@ -5,21 +5,28 @@ import {
 } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { EncryptionService } from './encryption.service';
+import { hashSync, compareSync } from 'bcrypt';
 import { Prisma } from '@prisma/client';
 import { UserInput, AuthPayload } from './auth.interface';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private encryptionService: EncryptionService,
     private usersService: UsersService,
     private jwtService: JwtService,
   ) {}
 
+  private isValid(text: string, hashedText: string): boolean {
+    return compareSync(text, hashedText);
+  }
+
+  private hash(text: string): string {
+    return hashSync(text, 8);
+  }
+
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
-    if (user && this.encryptionService.isValid(pass, user.password)) {
+    if (user && this.isValid(pass, user.password)) {
       const { password, ...result } = user;
       return result;
     }
@@ -46,7 +53,7 @@ export class AuthService {
     try {
       const user = await this.usersService.create({
         ...input,
-        password: this.encryptionService.hash(input.password),
+        password: this.hash(input.password),
       });
       return {
         id: user.id,
