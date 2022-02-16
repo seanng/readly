@@ -16,7 +16,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  private isValid(text: string, hashedText: string): boolean {
+  private isPasswordValid(text: string, hashedText: string): boolean {
     return compareSync(text, hashedText);
   }
 
@@ -26,7 +26,7 @@ export class AuthService {
 
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
-    if (user && this.isValid(pass, user.password)) {
+    if (user && this.isPasswordValid(pass, user.password)) {
       const { password, ...result } = user;
       return result;
     }

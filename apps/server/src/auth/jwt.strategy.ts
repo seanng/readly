@@ -7,7 +7,6 @@ import { jwtConstants } from './constants';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
     super({
-      // TODO: replace with cookieExtractor
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: jwtConstants.secret,
@@ -17,8 +16,4 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: any) {
     return { userId: payload.sub, email: payload.email };
   }
-}
-
-function cookieExtractor(req) {
-  return req?.cookies?.jwt || null;
 }

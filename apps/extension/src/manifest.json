@@ -4,8 +4,8 @@
   "name": "Readly Extension",
   "options_page": "options.html",
   "background": { "service_worker": "background.bundle.js" },
-  "host_permissions": ["<all_urls>"],
-  "permissions": ["storage", "cookies"],
+  "host_permissions": ["<all_urls>", "http://localhost:3002"],
+  "permissions": ["storage", "cookies", "tabs", "scripting"],
   "action": {
     "default_popup": "auth_popup.html",
     "default_icon": "icon-34.png"

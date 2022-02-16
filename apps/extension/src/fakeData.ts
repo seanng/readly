@@ -3,6 +3,8 @@ export const links = [
     id: 'abcdef',
     url: 'https://google.com',
     title: 'What is Web 3.0 and Why It Matters',
+    description: '',
+    faviconUrl: '',
     createdAt: '2022-01-22T13:50:46.024Z',
     readerInfo: {
       '61e92a7d8ec19564b531704a': { hasReadIt: true },
@@ -12,6 +14,8 @@ export const links = [
     id: 'abcdefg',
     url: 'https://google.com',
     title: 'What is Web 3.0 and Why It Matters',
+    description: '',
+    faviconUrl: '',
     createdAt: '2022-01-22T13:50:46.024Z',
     readerInfo: {
       '61e92a7d8ec19564b531704a': { hasReadIt: false },
@@ -21,6 +25,8 @@ export const links = [
     id: 'abcdeff',
     url: 'https://google.com',
     title: 'What is Web 3.0 and Why It Matters',
+    description: '',
+    faviconUrl: '',
     createdAt: '2022-01-22T13:50:46.024Z',
     readerInfo: {
       '61e92a7d8ec19564b531704a': { hasReadIt: true },
