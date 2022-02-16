@@ -34,7 +34,7 @@ export const DashboardProvider = ({ ...props }) => {
     chrome.runtime.sendMessage(secrets.extensionId, {
       message: 'SIGNOUT',
     });
-    window.location.href = 'auth_popup.html';
+    window.location.href = 'popup_unauth.html';
   }
 
   async function saveBrowserLink() {
