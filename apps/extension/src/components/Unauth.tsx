@@ -1,7 +1,6 @@
 import React, { useEffect, SyntheticEvent } from 'react';
 import { PrimaryButtonWide, WhiteButtonWide } from 'ui';
-
-const webUrl = 'http://localhost:3001';
+import secrets from 'secrets';
 
 export const Unauth: React.FC = () => {
   const goTo = (url: string) => (e: SyntheticEvent) => {
@@ -20,10 +19,13 @@ export const Unauth: React.FC = () => {
         <h2 className="mt-6 mb-12 text-center text-xl font-semibold text-gray-900 leading-7">
           Welcome to CBE
         </h2>
-        <PrimaryButtonWide onClick={goTo(webUrl + '/login')}>
+        <PrimaryButtonWide onClick={goTo(secrets.webUrl + '/login')}>
           Sign in
         </PrimaryButtonWide>
-        <WhiteButtonWide onClick={goTo(webUrl + '/signup')} classes="mt-4">
+        <WhiteButtonWide
+          onClick={goTo(secrets.webUrl + '/signup')}
+          classes="mt-4"
+        >
           Sign up
         </WhiteButtonWide>
       </div>

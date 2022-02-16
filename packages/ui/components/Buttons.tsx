@@ -1,11 +1,12 @@
 import React from "react";
+import { Popover } from "@headlessui/react";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
 }
 
 const BUTTON_DEFAULTS =
-  "inline-flex items-center border focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 font-medium rounded-md";
+  "inline-flex items-center border focus:outline-none font-medium rounded-md";
 const SMALL_DEFAULTS = "px-2.5 py-1.5 text-sm leading-4";
 const WIDE_DEFAULTS =
   "w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium";
@@ -20,7 +21,7 @@ export const PrimaryButtonWide = ({ ...props }) => (
     className={classNames(
       WIDE_DEFAULTS,
       PRIMARY_DEFAULTS,
-      "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
+      "focus:outline-none",
       props.classes
     )}
     {...props}
@@ -33,7 +34,7 @@ export const WhiteButtonWide = ({ ...props }) => (
     className={classNames(
       WIDE_DEFAULTS,
       WHITE_DEFAULTS,
-      "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
+      "focus:outline-none",
       props.classes
     )}
     {...props}
@@ -43,6 +44,33 @@ export const WhiteButtonWide = ({ ...props }) => (
 export const PrimaryButtonSmall = ({ ...props }) => (
   <button
     type="button"
+    className={classNames(
+      BUTTON_DEFAULTS,
+      SMALL_DEFAULTS,
+      PRIMARY_DEFAULTS,
+      "shadow-sm",
+      props.classes
+    )}
+    {...props}
+  />
+);
+
+export const PrimaryButtonSmallWide = ({ ...props }) => (
+  <button
+    type="button"
+    className={classNames(
+      WIDE_DEFAULTS,
+      SMALL_DEFAULTS,
+      PRIMARY_DEFAULTS,
+      "focus:outline-none",
+      props.classes
+    )}
+    {...props}
+  />
+);
+
+export const PrimaryButtonSmallPopover = ({ ...props }) => (
+  <Popover.Button
     className={classNames(
       BUTTON_DEFAULTS,
       SMALL_DEFAULTS,

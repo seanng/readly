@@ -1,23 +1,39 @@
+import { StarIcon } from '@heroicons/react/solid';
 import React, { useEffect, useState } from 'react';
-import { FolderOpenIcon, StarIcon, UserAddIcon } from '@heroicons/react/solid';
+import { FolderOpenIcon, UserAddIcon } from '@heroicons/react/solid';
+import AddLinkPopover from './AddLinkPopover';
 import { PrimaryButtonSmall, WhiteButtonSmall } from 'ui';
-import { Collection, Link } from 'utils/types';
+import { Link } from 'utils/types';
 import { getStorageItems } from 'utils/helpers';
 import NoLinksIcon from './NoLinksIcon';
+import { useDashStore } from 'contexts/dashboard';
 
-interface DashMainProps {
-  collection: Collection;
-}
-export default function Main({ collection }: DashMainProps) {
+export default function Main() {
   // TODO: add empty state (if no collection is selected/available in sidebar)
+  const { collections, activeIdx } = useDashStore();
+  const collection = collections[activeIdx];
   return (
     <div className="pl-2 pr-3 max-w-full">
-      <Header collectionName={collection?.name} />
-      {collection?.links?.length === 0 ? (
-        <NoLinksView />
+      {!collection ? (
+        <NoCollectionSelected />
       ) : (
-        <Body links={collection?.links} />
+        <>
+          <Header collectionName={collection?.name} />
+          {collection?.links?.length === 0 ? (
+            <NoLinksView />
+          ) : (
+            <Body links={collection?.links} />
+          )}
+        </>
       )}
+    </div>
+  );
+}
+
+function NoCollectionSelected() {
+  return (
+    <div className="flex-none flex pt-4 w-full mb-4">
+      {`<-- Please select or create a collection. TODO: Design me.`}
     </div>
   );
 }
@@ -26,7 +42,7 @@ function NoLinksView() {
   return (
     <div className="flex flex-col flex-1 shrink-0 items-center">
       <NoLinksIcon className="h-[278px] w-[417px]" />
-      <div className="flex flex-col w-[400px] items-center">
+      <div className="flex flex-col w-[400px] max-w-full items-center">
         <h3 className="text-base leading-6 font-medium text-gray-900 mt-5 mb-3">
           There are no links yet!
         </h3>
@@ -43,6 +59,8 @@ interface HeaderProps {
   collectionName: string;
 }
 function Header({ collectionName }: HeaderProps) {
+  const { browserTab, saveBrowserLink } = useDashStore();
+
   return (
     <>
       <div className="flex-none flex pt-4 w-full mb-4">
@@ -57,9 +75,14 @@ function Header({ collectionName }: HeaderProps) {
             <UserAddIcon className="-ml-0.5 mr-1 h-4 w-4" aria-hidden="true" />
             Invite
           </WhiteButtonSmall>
-          <PrimaryButtonSmall classes="ml-1">
+          {/* <AddLinkPopover /> */}
+          <PrimaryButtonSmall
+            classes="ml-1"
+            onClick={saveBrowserLink}
+            disabled={!browserTab}
+          >
             <StarIcon className="-ml-0.5 mr-1 h-4 w-4" aria-hidden="true" />
-            Add link
+            Save
           </PrimaryButtonSmall>
         </div>
       </div>
@@ -73,6 +96,7 @@ function Body({ links }: { links: Link[] }) {
   useEffect(() => {
     async function load() {
       const { id } = await getStorageItems();
+      // TODO: move to PopupContext
       setUserId(id);
     }
     load();
@@ -87,7 +111,7 @@ function Body({ links }: { links: Link[] }) {
             <h4 className="text-gray-900 text-sm leading-5 font-medium">
               {link.title}
             </h4>
-            <div className="flex space-x-3 text-xs leading-4 font-normal text-gray-500">
+            <div className="flex space-x-1 text-xs leading-4 font-normal text-gray-500">
               <span>url</span>
               <span>•</span>
               <span>Added today</span>

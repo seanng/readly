@@ -10,25 +10,14 @@ import {
   DotsHorizontalIcon,
 } from '@heroicons/react/solid';
 import IconLink from './SidebarIconLink';
-import { Collection } from 'utils/types';
+import { useDashStore } from 'contexts/dashboard';
 
-type SidebarProps = BodyProps & FooterProps;
-
-export default function Sidebar({
-  collections,
-  onNavItemClick,
-  currentNavItemIdx,
-  onSignout,
-}: SidebarProps) {
+export default function Sidebar() {
   return (
     <div className="flex flex-col min-h-0 border-r bg-white border-gray-200 pt-5 ">
       <Header />
-      <Body
-        collections={collections}
-        onNavItemClick={onNavItemClick}
-        currentNavItemIdx={currentNavItemIdx}
-      />
-      <Footer onSignout={onSignout} />
+      <Body />
+      <Footer />
     </div>
   );
 }
@@ -49,13 +38,8 @@ function Header() {
   );
 }
 
-interface BodyProps {
-  collections: Collection[];
-  onNavItemClick: (i: number) => () => void;
-  currentNavItemIdx: number;
-}
-
-function Body({ collections, onNavItemClick, currentNavItemIdx }: BodyProps) {
+function Body() {
+  const { setActiveIdx, activeIdx, collections } = useDashStore();
   return (
     <div className="px-2 flex-1 border-t border-gray-100 overflow-y-auto max-h-[436px]">
       <div className="py-2 text-sm leading-5 font-normal text-gray-400">
@@ -65,10 +49,12 @@ function Body({ collections, onNavItemClick, currentNavItemIdx }: BodyProps) {
         {collections.map((item, i) => (
           <a
             key={item.id}
-            onClick={onNavItemClick(i)}
+            onClick={() => {
+              setActiveIdx(i);
+            }}
             href="#"
             className={classNames(
-              currentNavItemIdx === i
+              activeIdx === i
                 ? 'bg-gray-100 text-gray-900'
                 : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
               'group flex items-center px-2 py-2 text-sm font-medium leading-5 rounded-md justify-between'
@@ -89,11 +75,8 @@ function Body({ collections, onNavItemClick, currentNavItemIdx }: BodyProps) {
   );
 }
 
-interface FooterProps {
-  onSignout: () => void;
-}
-
-function Footer({ onSignout }: FooterProps) {
+function Footer() {
+  const { signout } = useDashStore();
   return (
     <div className="flex-shrink-0 border-t border-gray-100 pt-6 pl-2">
       <IconLink name="Settings" Icon={CogIcon} classes="pb-6 px-2" />
@@ -101,7 +84,7 @@ function Footer({ onSignout }: FooterProps) {
         name="Logout"
         Icon={LogoutIcon}
         classes="pb-6 px-2"
-        onClick={onSignout}
+        onClick={signout}
       />
     </div>
   );
