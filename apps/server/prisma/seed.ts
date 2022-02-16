@@ -4,25 +4,46 @@ const prisma = new PrismaClient();
 
 const userData: Prisma.UserCreateInput[] = [
   {
-    password: 'Alice',
-    email: 'alice@prisma.io',
+    email: 'a@a.com',
+    password: 'asdfasdf',
   },
   {
-    password: 'Nilu',
-    email: 'nilu@prisma.io',
-  },
-  {
-    password: 'Mahmoud',
-    email: 'mahmoud@prisma.io',
+    email: 'c@c.com',
+    password: 'asdfasdf',
   },
 ];
 
+async function dropCollections() {
+  await prisma.user.deleteMany();
+  await prisma.collection.deleteMany();
+  await prisma.link.deleteMany();
+  await prisma.usersOnCollections.deleteMany();
+}
+
 async function main() {
+  console.log(`Dropping Collections ...`);
+  await dropCollections();
   console.log(`Start seeding ...`);
+
   for (const u of userData) {
     const user = await prisma.user.create({
-      data: u,
+      data: {
+        ...u,
+        collections: {
+          create: [
+            {
+              role: 'CREATOR',
+              collection: {
+                create: {
+                  name: `${u.email}'s collection`,
+                },
+              },
+            },
+          ],
+        },
+      },
     });
+
     console.log(`Created user with id: ${user.id}`);
   }
   console.log(`Seeding finished.`);
