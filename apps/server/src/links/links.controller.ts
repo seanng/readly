@@ -15,12 +15,12 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('links')
 export class LinksController {
-  constructor(private readonly linksService: LinksService) {}
+  constructor(private readonly service: LinksService) {}
 
   @UseGuards(JwtAuthGuard)
   @Post()
   create(@Request() req) {
-    return this.linksService.create({
+    return this.service.create({
       userId: req.user.userId,
       ...req.body,
     });
@@ -28,21 +28,21 @@ export class LinksController {
 
   @Get()
   findAll() {
-    return this.linksService.findAll();
+    return this.service.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.linksService.findOne(+id);
+    return this.service.findOne(+id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateLinkDto: UpdateLinkDto) {
-    return this.linksService.update(+id, updateLinkDto);
+    return this.service.update(+id, updateLinkDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.linksService.remove(+id);
+    return this.service.remove(+id);
   }
 }

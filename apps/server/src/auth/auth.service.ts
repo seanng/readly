@@ -42,11 +42,8 @@ export class AuthService {
   async login(input: UserInput): Promise<AuthPayload> {
     const user = await this.validateUser(input.email, input.password);
     if (!user) throw new UnauthorizedException();
-    return {
-      id: user.id,
-      email: input.email,
-      token: this.jwtService.sign({ email: user.email, sub: user.id }),
-    };
+    const token = this.jwtService.sign({ email: user.email, sub: user.id });
+    return { token };
   }
 
   async signup(input: UserInput): Promise<AuthPayload> {
@@ -55,11 +52,8 @@ export class AuthService {
         ...input,
         password: this.hash(input.password),
       });
-      return {
-        id: user.id,
-        email: input.email,
-        token: this.jwtService.sign({ email: user.email, sub: user.id }),
-      };
+      const token = this.jwtService.sign({ email: user.email, sub: user.id });
+      return { token };
     } catch (e) {
       if (this.isUniqueConstraintError(e)) {
         throw new ConflictException(`Email ${input.email} already used.`);

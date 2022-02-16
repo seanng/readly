@@ -37,7 +37,7 @@ async function setPopupOnLoad() {
 }
 
 function signout() {
-  // remove cookie so web displays signin page. tbh, can just navigate to "signout" page.
+  // remove cookie so web displays signin page.
   chrome.cookies.remove({
     url: secrets.webUrl,
     name: secrets.authTokenName,
@@ -48,8 +48,10 @@ function signout() {
   chrome.storage.local.clear();
 }
 
-function authenticate(data: { userId: string; email: string; token: string }) {
-  chrome.storage.local.set(data);
+async function authenticate({ token }: { token: string }) {
+  await chrome.storage.local.set({ token });
+  await updateCache();
+
   chrome.action.setPopup({
     popup: 'popup_dashboard.html',
   });
@@ -66,4 +68,33 @@ async function createNewLink(data: CreateLinkPayload) {
     body: JSON.stringify(data),
   });
   console.log('json: ', json);
+}
+
+// Fetches user data from backend and populate cache
+async function updateCache() {
+  const json = (await request('/users/me')) as MeResponsePayload;
+  await chrome.storage.local.set({
+    user: {
+      id: json.id,
+      email: json.email,
+    },
+    collections: json.collections.map((c) => ({
+      role: c.role,
+      ...c.collection,
+    })),
+    cacheTime: Date.now(),
+  });
+}
+
+interface MeResponsePayload {
+  id: string;
+  email: string;
+  collections: {
+    role: string;
+    collection: {
+      id: string;
+      name: string;
+      links: {}[];
+    };
+  }[];
 }
