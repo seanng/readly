@@ -11,15 +11,27 @@ export class UsersService {
     const user = await this.prismaService.user.findUnique({
       where: { id: userId },
       select: {
+        // get user info
         id: true,
         email: true,
-        // get other user info such as avatarUrl, etc.
         collections: {
           select: {
             role: true,
             collection: {
               include: {
                 links: true,
+                // get collection participants
+                users: {
+                  select: {
+                    role: true,
+                    user: {
+                      select: {
+                        id: true,
+                        email: true,
+                      },
+                    },
+                  },
+                },
               },
             },
           },

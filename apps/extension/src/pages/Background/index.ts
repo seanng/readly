@@ -18,7 +18,7 @@ async function handleIncomingMessages(
   sender: chrome.runtime.MessageSender,
   sendResponse: () => void
 ) {
-  if (req.message === 'SIGNOUT') signout();
+  if (req.message === 'SIGNOUT') signout(sendResponse);
   if (req.message === 'AUTHENTICATE') authenticate(req.data);
   if (req.message === 'NEW_COLLECTION') createNewCollection(req.data);
   if (req.message === 'NEW_LINK') createNewLink(req.data);
@@ -36,16 +36,17 @@ async function setPopupOnLoad() {
   });
 }
 
-function signout() {
+async function signout(callback: () => void) {
   // remove cookie so web displays signin page.
-  chrome.cookies.remove({
+  await chrome.cookies.remove({
     url: secrets.webUrl,
     name: secrets.authTokenName,
   });
-  chrome.action.setPopup({
+  await chrome.action.setPopup({
     popup: 'popup_unauth.html',
   });
-  chrome.storage.local.clear();
+  await chrome.storage.local.clear();
+  callback();
 }
 
 async function authenticate({ token }: { token: string }) {
@@ -70,7 +71,7 @@ async function createNewLink(data: CreateLinkPayload) {
   console.log('json: ', json);
 }
 
-// Fetches user data from backend and populate cache
+// Fetches user data from backend, transforms data and populate cache.
 async function updateCache() {
   const json = (await request('/users/me')) as MeResponsePayload;
   await chrome.storage.local.set({
@@ -78,10 +79,18 @@ async function updateCache() {
       id: json.id,
       email: json.email,
     },
-    collections: json.collections.map((c) => ({
-      role: c.role,
-      ...c.collection,
-    })),
+    collections: json.collections.map((c) => {
+      const { users, ...rest } = c.collection;
+      return {
+        role: c.role,
+        participants: users.map((u) => ({
+          id: u.user.id,
+          role: u.role,
+          email: u.user.email,
+        })),
+        ...rest,
+      };
+    }),
     cacheTime: Date.now(),
   });
 }
@@ -95,6 +104,13 @@ interface MeResponsePayload {
       id: string;
       name: string;
       links: {}[];
+      users: {
+        role: string;
+        user: {
+          id: string;
+          email: string;
+        };
+      }[];
     };
   }[];
 }

@@ -1,7 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { collections } from 'fakeData';
 import secrets from 'secrets';
-// import axios from 'lib/axios';
 import { Collection } from 'utils/types';
 
 interface ContextState {
