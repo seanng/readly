@@ -12,15 +12,24 @@ interface ContextState {
   saveBrowserLink: () => void;
   browserTab: chrome.tabs.Tab | null;
   createNewCollection: () => Promise<void>;
+  isLoading: boolean;
 }
 
 const DashboardContext = createContext({} as ContextState);
 
 export const DashboardProvider = ({ ...props }) => {
+  const [isLoading, setIsLoading] = useState(true);
   const [activeIdx, setActiveIdx] = useState(-1);
   const [browserTab, setBrowserTab] = useState<chrome.tabs.Tab | null>(null);
+  const [collections, setCollections] = useState<Collection[]>([]);
+  const [user, setUser] = useState();
 
   useEffect(() => {
+    chrome.storage.local.get(['collections', 'user'], function (result) {
+      setCollections(result.collections);
+      setUser(result.user);
+      setIsLoading(false);
+    });
     chrome.tabs.query(
       {
         active: true,
@@ -31,10 +40,15 @@ export const DashboardProvider = ({ ...props }) => {
   }, []);
 
   async function signout() {
-    chrome.runtime.sendMessage(secrets.extensionId, {
-      message: 'SIGNOUT',
-    });
-    window.location.href = 'popup_unauth.html';
+    chrome.runtime.sendMessage(
+      secrets.extensionId,
+      {
+        message: 'SIGNOUT',
+      },
+      () => {
+        window.location.href = 'popup_unauth.html';
+      }
+    );
   }
 
   async function saveBrowserLink() {
@@ -78,6 +92,7 @@ export const DashboardProvider = ({ ...props }) => {
         browserTab,
         saveBrowserLink,
         createNewCollection,
+        isLoading,
       }}
       {...props}
     />
