@@ -15,7 +15,7 @@ export class LinksService {
         },
         url: payload.url,
         title: payload.title,
-        description: payload.description,
+        description: payload.description || '',
         faviconUrl: payload.faviconUrl,
         readerInfo: {
           [payload.userId]: { hasReadIt: false },

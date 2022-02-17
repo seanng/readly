@@ -23,9 +23,9 @@ export const DashboardProvider = ({ ...props }) => {
   const [user, setUser] = useState();
 
   useEffect(() => {
-    chrome.storage.local.get(['collections', 'user'], function (result) {
-      setCollections(result.collections);
-      setUser(result.user);
+    chrome.storage.local.get(['collections', 'user'], function (store) {
+      setCollections(store.collections);
+      setUser(store.user);
       setIsLoading(false);
     });
     chrome.tabs.query(
@@ -51,6 +51,7 @@ export const DashboardProvider = ({ ...props }) => {
 
   async function saveBrowserLink() {
     if (!browserTab?.id) return;
+    const collectionId = collections[activeIdx].id;
     chrome.tabs.sendMessage(
       browserTab.id,
       { message: 'PAGE_DESCRIPTION' },
@@ -63,12 +64,15 @@ export const DashboardProvider = ({ ...props }) => {
               title: browserTab.title,
               url: browserTab.url,
               faviconUrl: browserTab.favIconUrl,
-              collectionId: collections[activeIdx].id,
+              collectionId,
               description,
             },
           },
-          (response) => {
-            console.log('response: ', response);
+          (link) => {
+            setCollections((collections) => {
+              collections[activeIdx].links.push(link);
+              return collections;
+            });
           }
         );
       }

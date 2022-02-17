@@ -1,6 +1,6 @@
 import secrets from 'secrets';
 import { getStorageItems } from 'utils/helpers';
-import { CreateLinkPayload } from 'utils/types';
+import { Collection, CreateLinkPayload } from 'utils/types';
 import { request } from 'lib/request';
 
 console.log('This is the background page.');
@@ -21,7 +21,7 @@ async function handleIncomingMessages(
   if (req.message === 'SIGNOUT') signout(sendResponse);
   if (req.message === 'AUTHENTICATE') authenticate(req.data);
   if (req.message === 'NEW_COLLECTION') createNewCollection(req.data);
-  if (req.message === 'NEW_LINK') createNewLink(req.data);
+  if (req.message === 'NEW_LINK') createNewLink(req.data, sendResponse);
 }
 
 async function handleExtensionStartup() {
@@ -51,7 +51,8 @@ async function signout(callback: () => void) {
 
 async function authenticate({ token }: { token: string }) {
   await chrome.storage.local.set({ token });
-  await updateCache();
+  const myDeets = await fetchMyData();
+  await updateCache(myDeets);
 
   chrome.action.setPopup({
     popup: 'popup_dashboard.html',
@@ -63,18 +64,27 @@ async function createNewCollection(data: any) {
   // postNewCollection
 }
 
-async function createNewLink(data: CreateLinkPayload) {
-  const json = await request('/links', {
+async function createNewLink(
+  data: CreateLinkPayload,
+  sendResponse: (p: any) => void
+) {
+  const link = await request('/links', {
     method: 'POST',
     body: JSON.stringify(data),
   });
-  console.log('json: ', json);
+  sendResponse(link);
+  chrome.storage.local.get(['collections'], ({ collections }) => {
+    const idx = collections.findIndex(
+      (e: Collection) => e.id === data.collectionId
+    );
+    collections[idx].links.push(link);
+    updateCache({ collections });
+  });
 }
 
-// Fetches user data from backend, transforms data and populate cache.
-async function updateCache() {
+async function fetchMyData(): Promise<Store> {
   const json = (await request('/users/me')) as MeResponsePayload;
-  await chrome.storage.local.set({
+  return {
     user: {
       id: json.id,
       email: json.email,
@@ -91,8 +101,30 @@ async function updateCache() {
         ...rest,
       };
     }),
+  };
+}
+
+function updateCache(store: Store): Promise<void> {
+  return chrome.storage.local.set({
+    ...store,
     cacheTime: Date.now(),
   });
+}
+
+interface Store {
+  user?: {
+    id: string;
+    email: string;
+  };
+  collections?: {
+    role: string;
+    participants: {
+      id: string;
+      role: string;
+      email: string;
+    }[];
+  }[];
+  cacheTime?: number;
 }
 
 interface MeResponsePayload {
