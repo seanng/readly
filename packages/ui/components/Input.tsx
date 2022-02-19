@@ -1,7 +1,13 @@
-import React from "react";
+import React, { InputHTMLAttributes } from "react";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
+}
+
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+  required?: boolean;
+  autoComplete?: string;
+  placeholder?: string;
 }
 
 export function Input({
@@ -16,11 +22,7 @@ export function Input({
   name: string;
   inputType?: string;
   label?: string;
-  inputProps?: {
-    required?: boolean;
-    autoComplete?: string;
-    placeholder?: string;
-  };
+  inputProps?: InputProps;
   error?: { message: string };
 }) {
   return (

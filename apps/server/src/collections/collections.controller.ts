@@ -1,14 +1,17 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Controller, Post, Request, UseGuards } from '@nestjs/common';
 import { CollectionsService } from './collections.service';
-import { CollectionInput } from './collections.interface';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('collections')
 export class CollectionsController {
   constructor(private service: CollectionsService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
-  // TODO: replace jwt auth guard with cookie guard.
-  async create(@Body() body: CollectionInput) {
-    return this.service.create(body);
+  create(@Request() req) {
+    return this.service.create({
+      userId: req.user.userId,
+      ...req.body,
+    });
   }
 }

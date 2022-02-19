@@ -59,9 +59,23 @@ async function authenticate({ token }: { token: string }) {
   });
 }
 
-async function createNewCollection(data: any) {
-  console.log('data: ', data);
-  // postNewCollection
+async function createNewCollection({ name = '' }) {
+  const { users, ...collection } = await request('/collections', {
+    method: 'POST',
+    body: JSON.stringify({ name }),
+  });
+  const transformed = {
+    participants: users,
+    ...collection,
+  };
+  chrome.runtime.sendMessage({
+    message: 'COLLECTION_POST_SUCCESS',
+    data: transformed,
+  });
+  chrome.storage.local.get(['collections'], ({ collections }) => {
+    collections.push(transformed);
+    updateCache({ collections });
+  });
 }
 
 async function createNewLink(data: CreateLinkPayload) {

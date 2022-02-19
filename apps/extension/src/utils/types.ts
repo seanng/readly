@@ -13,6 +13,11 @@ export interface CreateLinkPayload {
   collectionId: string;
 }
 
+export interface User {
+  id: string;
+  email: string;
+}
+
 export interface Link extends Omit<CreateLinkPayload, 'collectionId'> {
   id: string;
   readerInfo: ReaderInfo;

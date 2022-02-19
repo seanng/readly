@@ -1,5 +1,7 @@
+import { useIncomingMessageHandler } from 'hooks/useIncomingMessageHandler';
+import { useProviderInit } from 'hooks/useProviderInit';
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Collection, Link } from 'utils/types';
+import { Collection, User } from 'utils/types';
 
 interface ContextState {
   setActiveIdx: (i: number) => void;
@@ -8,7 +10,7 @@ interface ContextState {
   signout: () => void;
   saveBrowserLink: () => void;
   browserTab: chrome.tabs.Tab | null;
-  createNewCollection: () => Promise<void>;
+  createNewCollection: (n: string) => Promise<void>;
   isLoading: boolean;
 }
 
@@ -19,38 +21,15 @@ export const DashboardProvider = ({ ...props }) => {
   const [activeIdx, setActiveIdx] = useState(-1);
   const [browserTab, setBrowserTab] = useState<chrome.tabs.Tab | null>(null);
   const [collections, setCollections] = useState<Collection[]>([]);
-  const [user, setUser] = useState();
+  const [user, setUser] = useState<User>();
 
-  useEffect(() => {
-    chrome.storage.local.get(['collections', 'user'], function (store) {
-      setCollections(store.collections);
-      setUser(store.user);
-      setIsLoading(false);
-    });
-    chrome.tabs.query(
-      {
-        active: true,
-        lastFocusedWindow: true,
-      },
-      ([tab]) => setBrowserTab(tab)
-    );
-  }, []);
-
-  useEffect(() => {
-    function handleIncomingMessages(req: { message: string; data: any }) {
-      if (req.message === 'LINK_POST_SUCCESS') {
-        setCollections((c) => {
-          const collections = c.slice();
-          collections[activeIdx].links.push(req.data);
-          return collections;
-        });
-        setIsLoading(false);
-      }
-    }
-    chrome.runtime.onMessage.addListener(handleIncomingMessages);
-    return () =>
-      chrome.runtime.onMessage.removeListener(handleIncomingMessages);
-  }, [activeIdx]);
+  useProviderInit({ setCollections, setUser, setIsLoading, setBrowserTab });
+  useIncomingMessageHandler({
+    activeIdx,
+    setCollections,
+    setIsLoading,
+    setActiveIdx,
+  });
 
   async function signout() {
     chrome.runtime.sendMessage({ message: 'SIGNOUT' }, () => {
@@ -80,9 +59,12 @@ export const DashboardProvider = ({ ...props }) => {
     );
   }
 
-  async function createNewCollection() {
-    // POST
-    // await axios.post();
+  async function createNewCollection(name: string) {
+    setIsLoading(true);
+    chrome.runtime.sendMessage({
+      message: 'NEW_COLLECTION',
+      data: { name },
+    });
   }
 
   return (
