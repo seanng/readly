@@ -21,7 +21,7 @@ async function handleIncomingMessages(
   if (req.message === 'SIGNOUT') signout(sendResponse);
   if (req.message === 'AUTHENTICATE') authenticate(req.data);
   if (req.message === 'NEW_COLLECTION') createNewCollection(req.data);
-  if (req.message === 'NEW_LINK') createNewLink(req.data, sendResponse);
+  if (req.message === 'NEW_LINK') createNewLink(req.data);
 }
 
 async function handleExtensionStartup() {
@@ -64,15 +64,15 @@ async function createNewCollection(data: any) {
   // postNewCollection
 }
 
-async function createNewLink(
-  data: CreateLinkPayload,
-  sendResponse: (p: any) => void
-) {
-  const link = await request('/links', {
+async function createNewLink(data: CreateLinkPayload) {
+  const { collectionId, ...link } = await request('/links', {
     method: 'POST',
     body: JSON.stringify(data),
   });
-  sendResponse(link);
+  chrome.runtime.sendMessage({
+    message: 'LINK_POST_SUCCESS',
+    data: link,
+  });
   chrome.storage.local.get(['collections'], ({ collections }) => {
     const idx = collections.findIndex(
       (e: Collection) => e.id === data.collectionId

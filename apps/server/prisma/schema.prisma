@@ -49,8 +49,8 @@ model Link {
   url          String
   readerInfo   Json
   title        String
-  description  String
-  faviconUrl   String
+  description  String?
+  faviconUrl   String?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 }

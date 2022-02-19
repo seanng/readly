@@ -13,11 +13,6 @@ export class AuthController {
 
   @Post('signup')
   async signup(@Body() body: UserInput): Promise<AuthPayload> {
-    try {
-      return this.service.signup(body);
-    } catch (error) {
-      console.log('error n controller: ', error);
-      throw error;
-    }
+    return this.service.signup(body);
   }
 }

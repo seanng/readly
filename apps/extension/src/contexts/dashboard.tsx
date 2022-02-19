@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import secrets from 'secrets';
-import { Collection } from 'utils/types';
+import { Collection, Link } from 'utils/types';
 
 interface ContextState {
   setActiveIdx: (i: number) => void;
@@ -37,44 +36,46 @@ export const DashboardProvider = ({ ...props }) => {
     );
   }, []);
 
-  async function signout() {
-    chrome.runtime.sendMessage(
-      secrets.extensionId,
-      {
-        message: 'SIGNOUT',
-      },
-      () => {
-        window.location.href = 'popup_unauth.html';
+  useEffect(() => {
+    function handleIncomingMessages(req: { message: string; data: any }) {
+      if (req.message === 'LINK_POST_SUCCESS') {
+        setCollections((c) => {
+          const collections = c.slice();
+          collections[activeIdx].links.push(req.data);
+          return collections;
+        });
+        setIsLoading(false);
       }
-    );
+    }
+    chrome.runtime.onMessage.addListener(handleIncomingMessages);
+    return () =>
+      chrome.runtime.onMessage.removeListener(handleIncomingMessages);
+  }, [activeIdx]);
+
+  async function signout() {
+    chrome.runtime.sendMessage({ message: 'SIGNOUT' }, () => {
+      window.location.href = 'popup_unauth.html';
+    });
   }
 
   async function saveBrowserLink() {
     if (!browserTab?.id) return;
+    setIsLoading(true);
     const collectionId = collections[activeIdx].id;
     chrome.tabs.sendMessage(
       browserTab.id,
       { message: 'PAGE_DESCRIPTION' },
-      (description) => {
-        chrome.runtime.sendMessage(
-          secrets.extensionId,
-          {
-            message: 'NEW_LINK',
-            data: {
-              title: browserTab.title,
-              url: browserTab.url,
-              faviconUrl: browserTab.favIconUrl,
-              collectionId,
-              description,
-            },
+      (description: string) => {
+        chrome.runtime.sendMessage({
+          message: 'NEW_LINK',
+          data: {
+            title: browserTab.title,
+            url: browserTab.url,
+            faviconUrl: browserTab.favIconUrl,
+            collectionId,
+            description,
           },
-          (link) => {
-            setCollections((collections) => {
-              collections[activeIdx].links.push(link);
-              return collections;
-            });
-          }
-        );
+        });
       }
     );
   }

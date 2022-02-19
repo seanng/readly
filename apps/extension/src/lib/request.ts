@@ -14,9 +14,11 @@ export async function request(route = '', options = {}) {
       Authorization: `Bearer ${storageItems?.token}`,
     },
     ...options,
-  })
-    .then((res) => res.json())
-    .catch((rejected) => {
-      console.log('rejected: ', rejected);
-    });
+  }).then((res) => {
+    if (!res.ok) {
+      console.log('Error from fetch: ', res.json());
+      throw new Error();
+    }
+    return res.json();
+  });
 }
