@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { MouseEventHandler, useEffect, useState } from 'react';
 import { classNames } from 'utils/helpers';
 import { Input, SecondaryButtonSmall } from 'ui';
 import {
@@ -9,11 +9,13 @@ import {
   UserCircleIcon,
   DotsHorizontalIcon,
 } from '@heroicons/react/solid';
+import { useMenuState } from '@szhsin/react-menu';
 import { SidebarIconLink } from './SidebarIconLink';
 import { useDashStore } from 'contexts/dashboard';
 import { useForm } from 'react-hook-form';
 import { signout } from 'utils/helpers';
 import $ from 'jquery';
+import { useContextMenu } from 'contexts/context-menu';
 
 const NEW_COLLECTION_FORM_NAME = 'collectionName';
 
@@ -21,13 +23,9 @@ export function Sidebar() {
   const [showNewCollectionInput, setShowNewCollectionInput] = useState(false);
   const { setActiveIdx, activeIdx, collections, createCollection } =
     useDashStore();
+  const { toggleMenu, setAnchorPoint } = useContextMenu();
   const { handleSubmit, register, setFocus, resetField } = useForm();
-  const handleNewCollectionClick = () => {
-    // scroll down to the bottom of the div.
-    $('#sidebar-body').scrollTop($('#sidebar-body').height() as number);
-    // create new text input field
-    setShowNewCollectionInput(true);
-  };
+
   useEffect(() => {
     if (showNewCollectionInput) {
       setFocus(NEW_COLLECTION_FORM_NAME);
@@ -35,10 +33,26 @@ export function Sidebar() {
     }
     resetField(NEW_COLLECTION_FORM_NAME);
   }, [showNewCollectionInput]);
+
   const onSubmit = async (input: { collectionName: string }): Promise<void> => {
     await createCollection(input.collectionName);
     setShowNewCollectionInput(false);
   };
+
+  const handleNewCollectionClick = () => {
+    $('#sidebar-body').scrollTop($('#sidebar-body').height() as number); // scroll down to the bottom of the div.
+    setShowNewCollectionInput(true); // create new text input field
+  };
+
+  const handleItemRightClick: MouseEventHandler<
+    HTMLAnchorElement | SVGSVGElement
+  > = (e) => {
+    e.preventDefault(); // prevents default popup rightclick action
+    e.stopPropagation(); // ensures 3-dot onclick does not select item
+    setAnchorPoint({ x: e.clientX, y: e.clientY });
+    toggleMenu(true);
+  };
+
   return (
     <div className="flex flex-col min-h-0 border-r bg-white border-gray-200 pt-5 ">
       {/* Header */}
@@ -65,13 +79,14 @@ export function Sidebar() {
           {collections.map((item, i) => (
             <a
               key={item.id}
-              onClick={() => {
+              onClick={(e) => {
                 setActiveIdx(i);
               }}
               href="#"
+              onContextMenu={handleItemRightClick}
               className={classNames(
                 activeIdx === i
-                  ? 'bg-gray-200 text-gray-900'
+                  ? 'bg-gray-100 text-gray-900'
                   : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
                 'group flex items-center px-2 py-2 text-sm font-medium leading-5 rounded-md justify-between'
               )}
@@ -82,7 +97,10 @@ export function Sidebar() {
                 <UserCircleIcon className="w-3 h-3 ml-0.5 mr-1" />
                 <div>{item.links.length}</div>
                 <LinkIcon className="w-3 h-3 ml-0.5 mr-2" />
-                <DotsHorizontalIcon className="text-gray-900 w-4 h-4" />
+                <DotsHorizontalIcon
+                  onClick={handleItemRightClick}
+                  className="text-gray-900 w-5 h-5 p-1 rounded-full hover:bg-gray-200"
+                />
               </div>
             </a>
           ))}
