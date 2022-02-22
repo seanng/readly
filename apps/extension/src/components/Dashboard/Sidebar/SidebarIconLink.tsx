@@ -11,7 +11,7 @@ interface SidebarIconLinkProps {
   onClick?: () => void;
 }
 
-export default function SidebarIconLink({
+export function SidebarIconLink({
   name = '',
   Icon,
   href = '#',

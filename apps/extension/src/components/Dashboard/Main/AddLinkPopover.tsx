@@ -11,7 +11,7 @@ import {
 /**
  * @deprecated
  */
-export default function AddLinkPopover() {
+export function AddLinkPopover() {
   async function handleAddCurrentLink() {
     const [activeTab] = await chrome.tabs.query({
       active: true,

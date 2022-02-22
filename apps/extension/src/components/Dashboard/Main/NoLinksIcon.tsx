@@ -1,5 +1,5 @@
 import React from 'react';
-export default function NoLinksIcon({ ...props }) {
+export function NoLinksIcon({ ...props }) {
   return (
     <svg viewBox="0 0 417 278" fill="none" {...props}>
       <path

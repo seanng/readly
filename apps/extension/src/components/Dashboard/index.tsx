@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import Split from 'react-split';
-import Main from './Main';
-import Sidebar from './Sidebar';
-import SpinningOverlay from './SpinningOverlay';
+import { Main } from './Main';
+import { Sidebar } from './Sidebar';
+import { SpinningOverlay } from './SpinningOverlay';
 import { DashboardProvider } from 'contexts/dashboard';
 
 export function Dashboard() {

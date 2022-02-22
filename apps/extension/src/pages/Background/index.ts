@@ -20,8 +20,8 @@ async function handleIncomingMessages(
 ) {
   if (req.message === 'SIGNOUT') signout(sendResponse);
   if (req.message === 'AUTHENTICATE') authenticate(req.data);
-  if (req.message === 'NEW_COLLECTION') createNewCollection(req.data);
-  if (req.message === 'NEW_LINK') createNewLink(req.data);
+  if (req.message === 'NEW_COLLECTION') createCollection(req.data);
+  if (req.message === 'NEW_LINK') createLink(req.data);
 }
 
 async function handleExtensionStartup() {
@@ -37,6 +37,7 @@ async function setPopupOnLoad() {
 }
 
 async function signout(callback: () => void) {
+  // TODO: save cache to db.
   // remove cookie so web displays signin page.
   await chrome.cookies.remove({
     url: secrets.webUrl,
@@ -59,7 +60,7 @@ async function authenticate({ token }: { token: string }) {
   });
 }
 
-async function createNewCollection({ name = '' }) {
+async function createCollection({ name = '' }) {
   const { users, ...collection } = await request('/collections', {
     method: 'POST',
     body: JSON.stringify({ name }),
@@ -72,13 +73,14 @@ async function createNewCollection({ name = '' }) {
     message: 'COLLECTION_POST_SUCCESS',
     data: transformed,
   });
+  // update cache from popup instead of here.
   chrome.storage.local.get(['collections'], ({ collections }) => {
     collections.push(transformed);
     updateCache({ collections });
   });
 }
 
-async function createNewLink(data: CreateLinkPayload) {
+async function createLink(data: CreateLinkPayload) {
   const { collectionId, ...link } = await request('/links', {
     method: 'POST',
     body: JSON.stringify(data),
@@ -87,6 +89,7 @@ async function createNewLink(data: CreateLinkPayload) {
     message: 'LINK_POST_SUCCESS',
     data: link,
   });
+  // update cache from popup instead of here.
   chrome.storage.local.get(['collections'], ({ collections }) => {
     const idx = collections.findIndex(
       (e: Collection) => e.id === data.collectionId

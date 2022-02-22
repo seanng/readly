@@ -9,16 +9,17 @@ import {
   UserCircleIcon,
   DotsHorizontalIcon,
 } from '@heroicons/react/solid';
-import IconLink from './SidebarIconLink';
+import { SidebarIconLink } from './SidebarIconLink';
 import { useDashStore } from 'contexts/dashboard';
 import { useForm } from 'react-hook-form';
+import { signout } from 'utils/helpers';
 import $ from 'jquery';
 
 const NEW_COLLECTION_FORM_NAME = 'collectionName';
 
-export default function Sidebar() {
+export function Sidebar() {
   const [showNewCollectionInput, setShowNewCollectionInput] = useState(false);
-  const { setActiveIdx, activeIdx, collections, signout, createNewCollection } =
+  const { setActiveIdx, activeIdx, collections, createCollection } =
     useDashStore();
   const { handleSubmit, register, setFocus, resetField } = useForm();
   const handleNewCollectionClick = () => {
@@ -35,7 +36,7 @@ export default function Sidebar() {
     resetField(NEW_COLLECTION_FORM_NAME);
   }, [showNewCollectionInput]);
   const onSubmit = async (input: { collectionName: string }): Promise<void> => {
-    await createNewCollection(input.collectionName);
+    await createCollection(input.collectionName);
     setShowNewCollectionInput(false);
   };
   return (
@@ -108,8 +109,8 @@ export default function Sidebar() {
       </div>
       {/* Footer */}
       <div className="flex-shrink-0 border-t border-gray-100 pt-6 pl-2">
-        <IconLink name="Settings" Icon={CogIcon} classes="pb-6 px-2" />
-        <IconLink
+        <SidebarIconLink name="Settings" Icon={CogIcon} classes="pb-6 px-2" />
+        <SidebarIconLink
           name="Logout"
           Icon={LogoutIcon}
           classes="pb-6 px-2"

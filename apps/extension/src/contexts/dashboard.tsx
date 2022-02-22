@@ -1,17 +1,18 @@
 import { useIncomingMessageHandler } from 'hooks/useIncomingMessageHandler';
 import { useProviderInit } from 'hooks/useProviderInit';
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { Collection, User } from 'utils/types';
+import { getPageDescription } from 'utils/helpers';
 
 interface ContextState {
   setActiveIdx: (i: number) => void;
   activeIdx: number;
   collections: Collection[];
-  signout: () => void;
-  saveBrowserLink: () => void;
+  createLink: () => void;
   browserTab: chrome.tabs.Tab | null;
-  createNewCollection: (n: string) => Promise<void>;
+  createCollection: (n: string) => Promise<void>;
   isLoading: boolean;
+  isCreatingCollection: boolean;
 }
 
 const DashboardContext = createContext({} as ContextState);
@@ -21,6 +22,7 @@ export const DashboardProvider = ({ ...props }) => {
   const [activeIdx, setActiveIdx] = useState(-1);
   const [browserTab, setBrowserTab] = useState<chrome.tabs.Tab | null>(null);
   const [collections, setCollections] = useState<Collection[]>([]);
+  const [isCreatingCollection, setIsCreatingCollection] = useState(false);
   const [user, setUser] = useState<User>();
 
   useProviderInit({ setCollections, setUser, setIsLoading, setBrowserTab });
@@ -28,39 +30,48 @@ export const DashboardProvider = ({ ...props }) => {
     activeIdx,
     setCollections,
     setIsLoading,
-    setActiveIdx,
+    setIsCreatingCollection,
   });
 
-  async function signout() {
-    chrome.runtime.sendMessage({ message: 'SIGNOUT' }, () => {
-      window.location.href = 'popup_unauth.html';
+  async function createLink() {
+    if (!browserTab?.id) return;
+    setIsLoading(true);
+    const description = await getPageDescription(browserTab);
+    const collectionId = collections[activeIdx].id;
+    chrome.runtime.sendMessage({
+      message: 'NEW_LINK',
+      data: {
+        title: browserTab.title,
+        url: browserTab.url,
+        faviconUrl: browserTab.favIconUrl,
+        collectionId,
+        description,
+      },
     });
   }
 
-  async function saveBrowserLink() {
-    if (!browserTab?.id) return;
-    setIsLoading(true);
-    const collectionId = collections[activeIdx].id;
-    chrome.tabs.sendMessage(
-      browserTab.id,
-      { message: 'PAGE_DESCRIPTION' },
-      (description: string) => {
-        chrome.runtime.sendMessage({
-          message: 'NEW_LINK',
-          data: {
-            title: browserTab.title,
-            url: browserTab.url,
-            faviconUrl: browserTab.favIconUrl,
-            collectionId,
-            description,
-          },
-        });
-      }
-    );
-  }
-
-  async function createNewCollection(name: string) {
-    setIsLoading(true);
+  async function createCollection(name: string) {
+    /* Create a temporary proxy collection for seamless user experience.
+     * It will be replaced in IncomingMessageHandler */
+    setCollections((c) => {
+      const result = c.concat([
+        {
+          id: Date.now().toString() ?? '',
+          name,
+          links: [],
+          participants: [
+            {
+              id: user?.id ?? '',
+              email: user?.email ?? '',
+              role: 'CREATOR',
+            },
+          ],
+        },
+      ]);
+      setActiveIdx(result.length - 1);
+      return result;
+    });
+    setIsCreatingCollection(true);
     chrome.runtime.sendMessage({
       message: 'NEW_COLLECTION',
       data: { name },
@@ -73,11 +84,11 @@ export const DashboardProvider = ({ ...props }) => {
         setActiveIdx,
         activeIdx,
         collections,
-        signout,
         browserTab,
-        saveBrowserLink,
-        createNewCollection,
+        createLink,
+        createCollection,
         isLoading,
+        isCreatingCollection,
       }}
       {...props}
     />
