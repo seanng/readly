@@ -8,7 +8,6 @@ export class CollectionsService {
 
   async create(payload: CreateCollectionDto) {
     try {
-      console.log('payload: ', payload);
       const collection = await this.prismaService.collection.create({
         data: {
           name: payload.name,
@@ -40,6 +39,15 @@ export class CollectionsService {
       return collection;
     } catch (error) {
       console.log('error in create collection: ', error);
+      throw error;
+    }
+  }
+
+  async delete(id: string) {
+    try {
+      return this.prismaService.collection.delete({ where: { id } });
+    } catch (error) {
+      console.log('error in delete collection: ', error);
       throw error;
     }
   }

@@ -1,11 +1,17 @@
 import { useIncomingMessageHandler } from 'hooks/useIncomingMessageHandler';
 import { useProviderInit } from 'hooks/useProviderInit';
-import React, { createContext, useContext, useState } from 'react';
+import React, {
+  createContext,
+  SetStateAction,
+  useContext,
+  useState,
+} from 'react';
 import { Collection, User } from 'utils/types';
 import { getPageDescription } from 'utils/helpers';
 
 interface ContextState {
   setActiveIdx: (i: number) => void;
+  setCollections: (cb: SetStateAction<Collection[]>) => void;
   activeIdx: number;
   collections: Collection[];
   createLink: () => void;
@@ -15,9 +21,9 @@ interface ContextState {
   isCreatingCollection: boolean;
 }
 
-const DashboardContext = createContext({} as ContextState);
+const StoreContext = createContext({} as ContextState);
 
-export const DashboardProvider = ({ ...props }) => {
+export const StoreProvider = ({ ...props }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [activeIdx, setActiveIdx] = useState(-1);
   const [browserTab, setBrowserTab] = useState<chrome.tabs.Tab | null>(null);
@@ -58,6 +64,7 @@ export const DashboardProvider = ({ ...props }) => {
         {
           id: Date.now().toString() ?? '',
           name,
+          role: 'CREATOR',
           links: [],
           participants: [
             {
@@ -79,11 +86,12 @@ export const DashboardProvider = ({ ...props }) => {
   }
 
   return (
-    <DashboardContext.Provider
+    <StoreContext.Provider
       value={{
         setActiveIdx,
         activeIdx,
         collections,
+        setCollections,
         browserTab,
         createLink,
         createCollection,
@@ -95,4 +103,4 @@ export const DashboardProvider = ({ ...props }) => {
   );
 };
 
-export const useDashStore = () => useContext(DashboardContext);
+export const useStore = () => useContext(StoreContext);

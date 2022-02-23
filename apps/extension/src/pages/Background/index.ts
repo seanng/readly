@@ -22,6 +22,7 @@ async function handleIncomingMessages(
   if (req.message === 'AUTHENTICATE') authenticate(req.data);
   if (req.message === 'NEW_COLLECTION') createCollection(req.data);
   if (req.message === 'NEW_LINK') createLink(req.data);
+  if (req.message === 'DELETE_COLLECTION') deleteCollection(req.data);
 }
 
 async function handleExtensionStartup() {
@@ -40,8 +41,8 @@ async function signout(callback: () => void) {
   // TODO: save cache to db.
   // remove cookie so web displays signin page.
   await chrome.cookies.remove({
-    url: secrets.webUrl,
-    name: secrets.authTokenName,
+    url: secrets.webUrl, // emenakcmhhnnimenlofcmgmaakafgeld
+    name: secrets.authTokenName, // cbe:token
   });
   await chrome.action.setPopup({
     popup: 'popup_unauth.html',
@@ -78,6 +79,15 @@ async function createCollection({ name = '' }) {
     collections.push(transformed);
     updateCache({ collections });
   });
+}
+
+async function deleteCollection(data: {
+  collectionId: string;
+  collections: Collection[];
+}) {
+  const path = `/collections/${data.collectionId}`;
+  updateCache({ collections: data.collections });
+  request(path, { method: 'DELETE' });
 }
 
 async function createLink(data: CreateLinkPayload) {

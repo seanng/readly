@@ -1,5 +1,6 @@
 export interface Collection {
   id: string;
+  role: string;
   name: string;
   participants: Participant[];
   links: Link[];

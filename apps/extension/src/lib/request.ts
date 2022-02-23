@@ -14,11 +14,12 @@ export async function request(route = '', options = {}) {
       Authorization: `Bearer ${storageItems?.token}`,
     },
     ...options,
-  }).then((res) => {
+  }).then(async (res) => {
+    const json = await res.json();
     if (!res.ok) {
-      console.log('Error from fetch: ', res.json());
+      console.log('Error from fetch: ', json);
       throw new Error();
     }
-    return res.json();
+    return json;
   });
 }

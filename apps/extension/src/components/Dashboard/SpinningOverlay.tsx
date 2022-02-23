@@ -1,9 +1,9 @@
 import React from 'react';
 import { Transition } from '@headlessui/react';
-import { useDashStore } from 'contexts/dashboard';
+import { useStore } from 'contexts/store';
 
 export function SpinningOverlay() {
-  const { isLoading } = useDashStore();
+  const { isLoading } = useStore();
   return (
     <Transition
       show={isLoading}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDashStore } from 'contexts/dashboard';
+import { useStore } from 'contexts/store';
 import { Header } from './Header';
 import { NoLinksView } from './NoLinksView';
 import { Body } from './Body';
@@ -7,7 +7,7 @@ import { NoCollectionSelected } from './NoCollectionSelected';
 
 export function Main() {
   // TODO: add empty state (if no collection is selected/available in sidebar)
-  const { collections, activeIdx } = useDashStore();
+  const { collections, activeIdx } = useStore();
   const collection = collections[activeIdx];
   return (
     <div className="pl-2 max-w-full">

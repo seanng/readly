@@ -2,13 +2,13 @@ import { StarIcon } from '@heroicons/react/solid';
 import React from 'react';
 import { FolderOpenIcon, UserAddIcon } from '@heroicons/react/solid';
 import { PrimaryButtonSmall, WhiteButtonSmall } from 'ui';
-import { useDashStore } from 'contexts/dashboard';
+import { useStore } from 'contexts/store';
 
 interface HeaderProps {
   collectionName: string;
 }
 export function Header({ collectionName }: HeaderProps) {
-  const { browserTab, createLink, isCreatingCollection } = useDashStore();
+  const { browserTab, createLink, isCreatingCollection } = useStore();
 
   return (
     <>
