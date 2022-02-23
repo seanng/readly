@@ -10,7 +10,6 @@ import { Collection, User } from 'utils/types';
 import { getPageDescription } from 'utils/helpers';
 
 interface ContextState {
-  setActiveIdx: (i: number) => void;
   setCollections: (cb: SetStateAction<Collection[]>) => void;
   activeIdx: number;
   collections: Collection[];
@@ -19,6 +18,7 @@ interface ContextState {
   createCollection: (n: string) => Promise<void>;
   isLoading: boolean;
   isCreatingCollection: boolean;
+  selectCollection: (i: number) => void;
 }
 
 const StoreContext = createContext({} as ContextState);
@@ -31,7 +31,13 @@ export const StoreProvider = ({ ...props }) => {
   const [isCreatingCollection, setIsCreatingCollection] = useState(false);
   const [user, setUser] = useState<User>();
 
-  useProviderInit({ setCollections, setUser, setIsLoading, setBrowserTab });
+  useProviderInit({
+    setCollections,
+    setUser,
+    setIsLoading,
+    setBrowserTab,
+    setActiveIdx,
+  });
   useIncomingMessageHandler({
     activeIdx,
     setCollections,
@@ -56,6 +62,11 @@ export const StoreProvider = ({ ...props }) => {
     });
   }
 
+  function selectCollection(idx: number) {
+    setActiveIdx(idx);
+    chrome.storage.local.set({ activeIdx: idx });
+  }
+
   async function createCollection(name: string) {
     /* Create a temporary proxy collection for seamless user experience.
      * It will be replaced in IncomingMessageHandler */
@@ -75,7 +86,7 @@ export const StoreProvider = ({ ...props }) => {
           ],
         },
       ]);
-      setActiveIdx(result.length - 1);
+      selectCollection(result.length - 1);
       return result;
     });
     setIsCreatingCollection(true);
@@ -88,7 +99,7 @@ export const StoreProvider = ({ ...props }) => {
   return (
     <StoreContext.Provider
       value={{
-        setActiveIdx,
+        selectCollection,
         activeIdx,
         collections,
         setCollections,

@@ -6,6 +6,7 @@ interface Props {
   setUser: (u: User) => void;
   setIsLoading: (p: boolean) => void;
   setBrowserTab: (tab: chrome.tabs.Tab) => void;
+  setActiveIdx: (n: number) => void;
 }
 
 export function useProviderInit({
@@ -13,13 +14,18 @@ export function useProviderInit({
   setUser,
   setIsLoading,
   setBrowserTab,
+  setActiveIdx,
 }: Props) {
   useEffect(() => {
-    chrome.storage.local.get(['collections', 'user'], function (store) {
-      setCollections(store.collections);
-      setUser(store.user);
-      setIsLoading(false);
-    });
+    chrome.storage.local.get(
+      ['collections', 'user', 'activeIdx'],
+      function (store) {
+        setCollections(store.collections);
+        setActiveIdx(store.activeIdx);
+        setUser(store.user);
+        setIsLoading(false);
+      }
+    );
     chrome.tabs.query(
       {
         active: true,

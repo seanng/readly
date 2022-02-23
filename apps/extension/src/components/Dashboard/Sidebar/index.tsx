@@ -20,7 +20,8 @@ const NEW_COLLECTION_FORM_NAME = 'collectionName';
 
 export function Sidebar() {
   const [showNewCollectionInput, setShowNewCollectionInput] = useState(false);
-  const { setActiveIdx, activeIdx, collections, createCollection } = useStore();
+  const { selectCollection, activeIdx, collections, createCollection } =
+    useStore();
   const { toggleMenu, setAnchorPoint, setCollectionIdx } = useContextMenu();
   const { handleSubmit, register, setFocus, resetField } = useForm();
 
@@ -79,7 +80,7 @@ export function Sidebar() {
             <a
               key={item.id}
               onClick={(e) => {
-                setActiveIdx(i);
+                selectCollection(i);
               }}
               href="#"
               onContextMenu={handleItemRightClick(i)}

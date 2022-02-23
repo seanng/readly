@@ -1,6 +1,6 @@
 import secrets from 'secrets';
 import { getStorageItems } from 'utils/helpers';
-import { Collection, CreateLinkPayload } from 'utils/types';
+import { Collection, Store, CreateLinkPayload } from 'utils/types';
 import { request } from 'lib/request';
 
 console.log('This is the background page.');
@@ -136,22 +136,6 @@ function updateCache(store: Store): Promise<void> {
     ...store,
     cacheTime: Date.now(),
   });
-}
-
-interface Store {
-  user?: {
-    id: string;
-    email: string;
-  };
-  collections?: {
-    role: string;
-    participants: {
-      id: string;
-      role: string;
-      email: string;
-    }[];
-  }[];
-  cacheTime?: number;
 }
 
 interface MeResponsePayload {

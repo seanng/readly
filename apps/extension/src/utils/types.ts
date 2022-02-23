@@ -36,3 +36,20 @@ export type ReaderInfo = Record<
     hasReadIt: boolean;
   }
 >;
+
+export interface Store {
+  user?: {
+    id: string;
+    email: string;
+  };
+  collections?: {
+    role: string;
+    participants: {
+      id: string;
+      role: string;
+      email: string;
+    }[];
+  }[];
+  activeIdx?: number;
+  cacheTime?: number;
+}
