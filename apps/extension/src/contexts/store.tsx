@@ -19,6 +19,7 @@ interface ContextState {
   isLoading: boolean;
   isCreatingCollection: boolean;
   selectCollection: (i: number) => void;
+  user: User | undefined;
 }
 
 const StoreContext = createContext({} as ContextState);
@@ -108,6 +109,7 @@ export const StoreProvider = ({ ...props }) => {
         createCollection,
         isLoading,
         isCreatingCollection,
+        user,
       }}
       {...props}
     />

@@ -10,7 +10,7 @@ export function Main() {
   const { collections, activeIdx } = useStore();
   const collection = collections[activeIdx];
   return (
-    <div className="pl-2 max-w-full">
+    <div className="max-w-full">
       {!collection ? (
         <NoCollectionSelected />
       ) : (
