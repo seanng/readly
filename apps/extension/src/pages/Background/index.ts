@@ -22,6 +22,7 @@ async function handleIncomingMessages(
   if (req.message === 'AUTHENTICATE') authenticate(req.data);
   if (req.message === 'NEW_COLLECTION') createCollection(req.data);
   if (req.message === 'NEW_LINK') createLink(req.data);
+  if (req.message === 'UPDATE_COLLECTION') updateCollection(req.data);
   if (req.message === 'DELETE_COLLECTION') deleteCollection(req.data);
 }
 
@@ -79,6 +80,16 @@ async function createCollection({ name = '' }) {
     collections.push(transformed);
     updateCache({ collections });
   });
+}
+
+async function updateCollection(data: {
+  collectionId: string;
+  collections: Collection[];
+  body: Partial<Collection>;
+}) {
+  const path = `/collections/${data.collectionId}`;
+  updateCache({ collections: data.collections });
+  request(path, { method: 'PATCH', body: JSON.stringify(data.body) });
 }
 
 async function deleteCollection(data: {

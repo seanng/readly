@@ -1,14 +1,9 @@
 import React, { MouseEventHandler, useEffect, useState } from 'react';
-import { classNames } from 'utils/helpers';
 import { Input } from 'ui';
-import {
-  LinkIcon,
-  UserCircleIcon,
-  DotsHorizontalIcon,
-} from '@heroicons/react/solid';
 import { useStore } from 'contexts/store';
 import { useForm } from 'react-hook-form';
 import { useContextMenu } from 'contexts/context-menu';
+import { NavItem } from './NavItem';
 
 const NEW_COLLECTION_FORM_NAME = 'collectionName';
 
@@ -21,8 +16,7 @@ export function Body({
   showNewCollectionInput,
   setShowNewCollectionInput,
 }: Props) {
-  const { selectCollection, activeIdx, collections, createCollection } =
-    useStore();
+  const { selectCollection, collections, createCollection } = useStore();
   const { handleSubmit, register, setFocus, resetField } = useForm();
   const { toggleMenu, setAnchorPoint, setCollectionIdx } = useContextMenu();
 
@@ -34,8 +28,8 @@ export function Body({
     resetField(NEW_COLLECTION_FORM_NAME);
   }, [showNewCollectionInput]);
 
-  const onSubmit = async (input: { collectionName: string }): Promise<void> => {
-    await createCollection(input.collectionName);
+  const onSubmit = (input: { collectionName: string }): void => {
+    createCollection(input.collectionName);
     setShowNewCollectionInput(false);
   };
 
@@ -59,32 +53,15 @@ export function Body({
       </div>
       <nav className="flex-1 space-y-1">
         {collections.map((item, i) => (
-          <a
+          <NavItem
             key={item.id}
+            idx={i}
             onClick={(e) => {
               selectCollection(i);
             }}
-            href="#"
-            onContextMenu={handleItemRightClick(i)}
-            className={classNames(
-              activeIdx === i
-                ? 'bg-gray-100 text-gray-900'
-                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
-              'group flex items-center px-2 py-2 text-sm font-medium leading-5 rounded-md justify-between'
-            )}
-          >
-            <div className="truncate">{item.name}</div>
-            <div className="ml-2 hidden group-hover:flex font-normal text-gray-400 text-xs items-center">
-              <div>{item.participants.length}</div>
-              <UserCircleIcon className="w-3 h-3 ml-0.5 mr-1" />
-              <div>{item.links.length}</div>
-              <LinkIcon className="w-3 h-3 ml-0.5 mr-2" />
-              <DotsHorizontalIcon
-                onClick={handleItemRightClick(i)}
-                className="text-gray-900 w-5 h-5 p-1 rounded-full hover:bg-gray-200"
-              />
-            </div>
-          </a>
+            onRightClick={handleItemRightClick(i)}
+            collection={item}
+          />
         ))}
         {showNewCollectionInput && (
           <form onSubmit={handleSubmit(onSubmit)}>

@@ -50,7 +50,6 @@ export class CollectionsService {
         where: { id },
         data: updateCollectionDto,
       });
-      console.log('collection: ', collection);
       return collection;
     } catch (error) {
       console.log('error in update collection: ', error);

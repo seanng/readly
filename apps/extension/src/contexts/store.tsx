@@ -1,4 +1,3 @@
-import { useIncomingMessageHandler } from 'hooks/useIncomingMessageHandler';
 import React, {
   createContext,
   SetStateAction,
@@ -9,21 +8,23 @@ import { Collection, User } from 'utils/types';
 import { getPageDescription } from 'utils/helpers';
 
 interface ContextState {
-  setCollections: (cb: SetStateAction<Collection[]>) => void;
   activeIdx: number;
-  collections: Collection[];
-  createLink: () => void;
   browserTab: chrome.tabs.Tab | null;
-  createCollection: (n: string) => Promise<void>;
-  isLoading: boolean;
+  collections: Collection[];
+  createCollection: (n: string) => void;
+  createLink: () => void;
+  deleteCollection: (i: number) => void;
   isCreatingCollection: boolean;
+  isLoading: boolean;
+  setCollections: (cb: SetStateAction<Collection[]>) => void;
   setIsCreatingCollection: (p: boolean) => void;
   selectCollection: (i: number) => void;
-  user: User | undefined;
-  setUser: (u: User) => void;
-  setIsLoading: (p: boolean) => void;
-  setBrowserTab: (tab: chrome.tabs.Tab) => void;
   setActiveIdx: (n: number) => void;
+  setBrowserTab: (tab: chrome.tabs.Tab) => void;
+  setIsLoading: (p: boolean) => void;
+  setUser: (u: User) => void;
+  updateCollection: (idx: number, data: Partial<Collection>) => void;
+  user: User | undefined;
 }
 
 const StoreContext = createContext({} as ContextState);
@@ -58,7 +59,7 @@ export const StoreProvider = ({ ...props }) => {
     chrome.storage.local.set({ activeIdx: idx });
   }
 
-  async function createCollection(name: string) {
+  function createCollection(name: string) {
     /* Create a temporary proxy collection for seamless user experience.
      * It will be replaced in IncomingMessageHandler */
     setCollections((c) => {
@@ -87,6 +88,38 @@ export const StoreProvider = ({ ...props }) => {
     });
   }
 
+  function updateCollection(idx: number, data: Partial<Collection>) {
+    const collectionId = collections[idx].id;
+    let newCollections = collections;
+    setCollections((c) => {
+      newCollections = c.slice();
+      newCollections[idx] = { ...newCollections[idx], ...data };
+      return newCollections;
+    });
+    chrome.runtime.sendMessage({
+      message: 'UPDATE_COLLECTION',
+      data: {
+        collections: newCollections,
+        collectionId,
+        body: data,
+      },
+    });
+  }
+
+  function deleteCollection(idx: number) {
+    const collectionId = collections[idx].id;
+    let newCollections = collections;
+    setCollections((c) => {
+      newCollections = c.slice();
+      newCollections.splice(idx, 1);
+      return newCollections;
+    });
+    chrome.runtime.sendMessage({
+      message: 'DELETE_COLLECTION',
+      data: { collectionId, collections: newCollections },
+    });
+  }
+
   return (
     <StoreContext.Provider
       value={{
@@ -95,6 +128,7 @@ export const StoreProvider = ({ ...props }) => {
         collections,
         createLink,
         createCollection,
+        deleteCollection,
         isCreatingCollection,
         isLoading,
         selectCollection,
@@ -104,6 +138,7 @@ export const StoreProvider = ({ ...props }) => {
         setIsCreatingCollection,
         setIsLoading,
         setUser,
+        updateCollection,
         user,
       }}
       {...props}
