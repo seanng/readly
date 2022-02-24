@@ -7,7 +7,7 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { hashSync, compareSync } from 'bcrypt';
 import { Prisma } from '@prisma/client';
-import { UserInput, AuthPayload } from './auth.interface';
+import { CreateUserDto } from '../users/dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -39,24 +39,24 @@ export class AuthService {
     );
   }
 
-  async login(input: UserInput): Promise<AuthPayload> {
-    const user = await this.validateUser(input.email, input.password);
+  async login(dto: CreateUserDto): Promise<{ token: string }> {
+    const user = await this.validateUser(dto.email, dto.password);
     if (!user) throw new UnauthorizedException();
     const token = this.jwtService.sign({ email: user.email, sub: user.id });
     return { token };
   }
 
-  async signup(input: UserInput): Promise<AuthPayload> {
+  async signup(dto: CreateUserDto): Promise<{ token: string }> {
     try {
       const user = await this.usersService.create({
-        ...input,
-        password: this.hash(input.password),
+        ...dto,
+        password: this.hash(dto.password),
       });
       const token = this.jwtService.sign({ email: user.email, sub: user.id });
       return { token };
     } catch (e) {
       if (this.isUniqueConstraintError(e)) {
-        throw new ConflictException(`Email ${input.email} already used.`);
+        throw new ConflictException(`Email ${dto.email} already used.`);
       } else {
         throw new Error(e);
       }

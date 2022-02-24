@@ -1,4 +1,6 @@
+import { IsNumberString, IsString } from 'class-validator';
+
 export class CreateCollectionDto {
-  userId: string;
+  @IsString()
   name: string;
 }

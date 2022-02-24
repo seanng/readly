@@ -5,9 +5,13 @@ import {
   Delete,
   Param,
   UseGuards,
+  Body,
+  Patch,
 } from '@nestjs/common';
 import { CollectionsService } from './collections.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { UpdateCollectionDto } from './dto/update-collection.dto';
+import { CreateCollectionDto } from './dto/create-collection.dto';
 
 @Controller('collections')
 export class CollectionsController {
@@ -15,11 +19,18 @@ export class CollectionsController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Request() req) {
-    return this.service.create({
-      userId: req.user.userId,
-      ...req.body,
-    });
+  create(@Request() req, @Body() createCollectionDto: CreateCollectionDto) {
+    const { userId } = req.user;
+    return this.service.create(userId, createCollectionDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  update(
+    @Param('id') id: string,
+    @Body() updateCollectionDto: UpdateCollectionDto,
+  ) {
+    return this.service.update(id, updateCollectionDto);
   }
 
   @UseGuards(JwtAuthGuard)
