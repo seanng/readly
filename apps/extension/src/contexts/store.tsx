@@ -1,5 +1,4 @@
 import { useIncomingMessageHandler } from 'hooks/useIncomingMessageHandler';
-import { useProviderInit } from 'hooks/useProviderInit';
 import React, {
   createContext,
   SetStateAction,
@@ -18,8 +17,13 @@ interface ContextState {
   createCollection: (n: string) => Promise<void>;
   isLoading: boolean;
   isCreatingCollection: boolean;
+  setIsCreatingCollection: (p: boolean) => void;
   selectCollection: (i: number) => void;
   user: User | undefined;
+  setUser: (u: User) => void;
+  setIsLoading: (p: boolean) => void;
+  setBrowserTab: (tab: chrome.tabs.Tab) => void;
+  setActiveIdx: (n: number) => void;
 }
 
 const StoreContext = createContext({} as ContextState);
@@ -31,20 +35,6 @@ export const StoreProvider = ({ ...props }) => {
   const [collections, setCollections] = useState<Collection[]>([]);
   const [isCreatingCollection, setIsCreatingCollection] = useState(false);
   const [user, setUser] = useState<User>();
-
-  useProviderInit({
-    setCollections,
-    setUser,
-    setIsLoading,
-    setBrowserTab,
-    setActiveIdx,
-  });
-  useIncomingMessageHandler({
-    activeIdx,
-    setCollections,
-    setIsLoading,
-    setIsCreatingCollection,
-  });
 
   async function createLink() {
     if (!browserTab?.id) return;
@@ -100,15 +90,20 @@ export const StoreProvider = ({ ...props }) => {
   return (
     <StoreContext.Provider
       value={{
-        selectCollection,
         activeIdx,
-        collections,
-        setCollections,
         browserTab,
+        collections,
         createLink,
         createCollection,
-        isLoading,
         isCreatingCollection,
+        isLoading,
+        selectCollection,
+        setActiveIdx,
+        setBrowserTab,
+        setCollections,
+        setIsCreatingCollection,
+        setIsLoading,
+        setUser,
         user,
       }}
       {...props}

@@ -1,3 +1,4 @@
+import { useStore } from 'contexts/store';
 import { SetStateAction, useEffect } from 'react';
 import { Collection } from 'utils/types';
 
@@ -8,12 +9,9 @@ interface Props {
   setIsCreatingCollection: (p: boolean) => void;
 }
 
-export function useIncomingMessageHandler({
-  activeIdx,
-  setCollections,
-  setIsLoading,
-  setIsCreatingCollection,
-}: Props) {
+export function useIncomingMessageHandler() {
+  const { activeIdx, setCollections, setIsLoading, setIsCreatingCollection } =
+    useStore();
   useEffect(() => {
     function handleIncomingMessages(req: { message: string; data: any }) {
       if (req.message === 'LINK_POST_SUCCESS') {
