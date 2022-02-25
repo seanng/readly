@@ -1,6 +1,12 @@
 import secrets from 'secrets';
 import { getStorageItems } from 'utils/helpers';
-import { Collection, Store, CreateLinkPayload } from 'utils/types';
+import {
+  Collection,
+  Store,
+  CreateLinkPayload,
+  Link,
+  MeResponsePayload,
+} from 'utils/types';
 import { request } from 'lib/request';
 
 console.log('This is the background page.');
@@ -25,6 +31,7 @@ async function handleIncomingMessages(
   if (req.message === 'NEW_LINK') createLink(req.data);
   if (req.message === 'SIGNOUT') signout(sendResponse);
   if (req.message === 'UPDATE_COLLECTION') updateCollection(req.data);
+  if (req.message === 'UPDATE_LINK') updateLink(req.data);
 }
 
 async function handleExtensionStartup() {
@@ -89,21 +96,16 @@ async function updateCollection(data: {
   body: Partial<Collection>;
 }) {
   const path = `/collections/${data.collectionId}`;
+  await request(path, { method: 'PATCH', body: JSON.stringify(data.body) });
   updateCache({ collections: data.collections });
-  request(path, { method: 'PATCH', body: JSON.stringify(data.body) });
 }
 
 async function deleteCollection(data: {
   collectionId: string;
   collections: Collection[];
 }) {
+  await request(`/collections/${data.collectionId}`, { method: 'DELETE' });
   updateCache({ collections: data.collections });
-  request(`/collections/${data.collectionId}`, { method: 'DELETE' });
-}
-
-async function deleteLink(data: { linkId: string; collections: Collection[] }) {
-  updateCache({ collections: data.collections });
-  request(`/links/${data.linkId}`, { method: 'DELETE' });
 }
 
 async function createLink(data: CreateLinkPayload) {
@@ -123,6 +125,21 @@ async function createLink(data: CreateLinkPayload) {
     collections[idx].links.push(link);
     updateCache({ collections });
   });
+}
+
+async function updateLink(data: {
+  linkId: string;
+  collections: Collection[];
+  body: Partial<Link>;
+}) {
+  const path = `/links/${data.linkId}`;
+  await request(path, { method: 'PATCH', body: JSON.stringify(data.body) });
+  updateCache({ collections: data.collections });
+}
+
+async function deleteLink(data: { linkId: string; collections: Collection[] }) {
+  await request(`/links/${data.linkId}`, { method: 'DELETE' });
+  updateCache({ collections: data.collections });
 }
 
 async function fetchMyData(): Promise<Store> {
@@ -152,24 +169,4 @@ function updateCache(store: Store): Promise<void> {
     ...store,
     cacheTime: Date.now(),
   });
-}
-
-interface MeResponsePayload {
-  id: string;
-  email: string;
-  collections: {
-    role: string;
-    collection: {
-      id: string;
-      name: string;
-      links: {}[];
-      users: {
-        role: string;
-        user: {
-          id: string;
-          email: string;
-        };
-      }[];
-    };
-  }[];
 }

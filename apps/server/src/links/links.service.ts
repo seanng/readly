@@ -7,19 +7,19 @@ import { UpdateLinkDto } from './dto/update-link.dto';
 export class LinksService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async create(payload: CreateLinkDto) {
+  async create(userId: string, body: CreateLinkDto) {
     try {
       const link = await this.prismaService.link.create({
         data: {
           collection: {
-            connect: { id: payload.collectionId },
+            connect: { id: body.collectionId },
           },
-          url: payload.url,
-          title: payload.title,
-          description: payload.description,
-          faviconUrl: payload.faviconUrl,
+          url: body.url,
+          title: body.title,
+          description: body.description,
+          faviconUrl: body.faviconUrl,
           readerInfo: {
-            [payload.userId]: { hasReadIt: false },
+            [userId]: { hasReadIt: false },
           },
         },
       });
@@ -38,8 +38,17 @@ export class LinksService {
     return `This action returns a #${id} link`;
   }
 
-  update(id: number, updateLinkDto: UpdateLinkDto) {
-    return `This action updates a #${id} link`;
+  async update(id: string, updateLinkDto: UpdateLinkDto) {
+    try {
+      const link = await this.prismaService.link.update({
+        where: { id },
+        data: updateLinkDto,
+      });
+      return link;
+    } catch (error) {
+      console.log('error in update collection: ', error);
+      throw error;
+    }
   }
 
   delete(id: string) {

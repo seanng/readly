@@ -12,6 +12,7 @@ import {
 import { LinksService } from './links.service';
 import { UpdateLinkDto } from './dto/update-link.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { CreateLinkDto } from './dto/create-link.dto';
 
 @Controller('links')
 export class LinksController {
@@ -19,11 +20,9 @@ export class LinksController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Request() req) {
-    return this.service.create({
-      userId: req.user.userId,
-      ...req.body,
-    });
+  create(@Request() req, @Body() createLinkDto: CreateLinkDto) {
+    const { userId } = req.user;
+    return this.service.create(userId, createLinkDto);
   }
 
   @Get()
@@ -36,9 +35,10 @@ export class LinksController {
     return this.service.findOne(+id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateLinkDto: UpdateLinkDto) {
-    return this.service.update(+id, updateLinkDto);
+    return this.service.update(id, updateLinkDto);
   }
 
   @UseGuards(JwtAuthGuard)

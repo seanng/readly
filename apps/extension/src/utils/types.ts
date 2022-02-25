@@ -30,12 +30,12 @@ export interface Participant {
   email: string;
 }
 
-export type ReaderInfo = Record<
-  string,
-  {
-    hasReadIt: boolean;
-  }
->;
+export interface ReaderInfoValue {
+  hasReadIt: boolean;
+  // TODO: add userAvatarUrl
+}
+
+export type ReaderInfo = Record<string, ReaderInfoValue>;
 
 export interface Store {
   user?: {
@@ -52,4 +52,24 @@ export interface Store {
   }[];
   activeIdx?: number;
   cacheTime?: number;
+}
+
+export interface MeResponsePayload {
+  id: string;
+  email: string;
+  collections: {
+    role: string;
+    collection: {
+      id: string;
+      name: string;
+      links: {}[];
+      users: {
+        role: string;
+        user: {
+          id: string;
+          email: string;
+        };
+      }[];
+    };
+  }[];
 }
