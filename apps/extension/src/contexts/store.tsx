@@ -14,6 +14,7 @@ interface ContextState {
   createCollection: (n: string) => void;
   createLink: () => void;
   deleteCollection: (i: number) => void;
+  deleteLink: (i: number) => void;
   isCreatingCollection: boolean;
   isLoading: boolean;
   setCollections: (cb: SetStateAction<Collection[]>) => void;
@@ -120,6 +121,20 @@ export const StoreProvider = ({ ...props }) => {
     });
   }
 
+  function deleteLink(linkIdx: number) {
+    const linkId = collections[activeIdx].links[linkIdx].id;
+    let newCollections = collections;
+    setCollections((c) => {
+      newCollections = c.slice();
+      newCollections[activeIdx].links.splice(linkIdx, 1);
+      return newCollections;
+    });
+    chrome.runtime.sendMessage({
+      message: 'DELETE_LINK',
+      data: { linkId, collections: newCollections },
+    });
+  }
+
   return (
     <StoreContext.Provider
       value={{
@@ -129,6 +144,7 @@ export const StoreProvider = ({ ...props }) => {
         createLink,
         createCollection,
         deleteCollection,
+        deleteLink,
         isCreatingCollection,
         isLoading,
         selectCollection,

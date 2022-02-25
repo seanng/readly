@@ -9,7 +9,7 @@ import {
 } from '@heroicons/react/solid';
 
 export function Body({ links }: { links: Link[] }) {
-  const { user } = useStore(); // this might not be necessary, since link does not display user-specific data.
+  const { user, deleteLink } = useStore(); // this might not be necessary, since link does not display user-specific data.
 
   const goTo = (url: string) => (e: SyntheticEvent) => {
     e.preventDefault();
@@ -27,9 +27,10 @@ export function Body({ links }: { links: Link[] }) {
     e.stopPropagation();
   };
 
-  const handleDeleteClick = (e: SyntheticEvent) => {
+  const handleDeleteClick = (idx: number) => (e: SyntheticEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    deleteLink(idx);
   };
 
   return (
@@ -76,7 +77,7 @@ export function Body({ links }: { links: Link[] }) {
               <button
                 type="button"
                 className="border-gray-300 rounded-full border p-1"
-                onClick={handleDeleteClick}
+                onClick={handleDeleteClick(i)}
               >
                 <TrashIcon className="h-4 w-auto text-red-500 " />
               </button>

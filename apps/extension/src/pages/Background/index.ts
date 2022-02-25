@@ -18,12 +18,13 @@ async function handleIncomingMessages(
   sender: chrome.runtime.MessageSender,
   sendResponse: () => void
 ) {
-  if (req.message === 'SIGNOUT') signout(sendResponse);
   if (req.message === 'AUTHENTICATE') authenticate(req.data);
+  if (req.message === 'DELETE_COLLECTION') deleteCollection(req.data);
+  if (req.message === 'DELETE_LINK') deleteLink(req.data);
   if (req.message === 'NEW_COLLECTION') createCollection(req.data);
   if (req.message === 'NEW_LINK') createLink(req.data);
+  if (req.message === 'SIGNOUT') signout(sendResponse);
   if (req.message === 'UPDATE_COLLECTION') updateCollection(req.data);
-  if (req.message === 'DELETE_COLLECTION') deleteCollection(req.data);
 }
 
 async function handleExtensionStartup() {
@@ -96,9 +97,13 @@ async function deleteCollection(data: {
   collectionId: string;
   collections: Collection[];
 }) {
-  const path = `/collections/${data.collectionId}`;
   updateCache({ collections: data.collections });
-  request(path, { method: 'DELETE' });
+  request(`/collections/${data.collectionId}`, { method: 'DELETE' });
+}
+
+async function deleteLink(data: { linkId: string; collections: Collection[] }) {
+  updateCache({ collections: data.collections });
+  request(`/links/${data.linkId}`, { method: 'DELETE' });
 }
 
 async function createLink(data: CreateLinkPayload) {

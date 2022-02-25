@@ -41,8 +41,9 @@ export class LinksController {
     return this.service.update(+id, updateLinkDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.service.remove(+id);
+    return this.service.delete(id);
   }
 }

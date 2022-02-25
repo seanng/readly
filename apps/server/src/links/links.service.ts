@@ -42,7 +42,12 @@ export class LinksService {
     return `This action updates a #${id} link`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} link`;
+  delete(id: string) {
+    try {
+      return this.prismaService.link.delete({ where: { id } });
+    } catch (error) {
+      console.log('error in delete link: ', error);
+      throw error;
+    }
   }
 }
