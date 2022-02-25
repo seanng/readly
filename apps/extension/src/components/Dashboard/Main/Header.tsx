@@ -3,12 +3,14 @@ import React from 'react';
 import { FolderOpenIcon, UserAddIcon } from '@heroicons/react/solid';
 import { PrimaryButtonSmall, WhiteButtonSmall } from 'ui';
 import { useStore } from 'contexts/store';
+import { InvitePopover } from './InvitePopover';
+import { Collection } from 'utils/types';
 
 interface HeaderProps {
-  title: string;
+  collection: Collection;
 }
-export function Header({ title }: HeaderProps) {
-  const { browserTab, createLink, isCreatingCollection } = useStore();
+export function Header({ collection }: HeaderProps) {
+  const { browserTab, createLink, isCreatingCollection, user } = useStore();
 
   return (
     <div className="pl-2 pr-3 w-full pt-4">
@@ -16,14 +18,11 @@ export function Header({ title }: HeaderProps) {
         <div className="flex flex-1 items-center pr-2">
           <FolderOpenIcon className="w-6 mr-2 flex-none" />
           <div className="flex-auto w-32 text-lg leading-7 font-medium truncate">
-            {title}
+            {collection.name}
           </div>
         </div>
         <div className="flex flex-none">
-          <WhiteButtonSmall>
-            <UserAddIcon className="-ml-0.5 mr-1 h-4 w-4" aria-hidden="true" />
-            Invite
-          </WhiteButtonSmall>
+          <InvitePopover user={user} participants={collection.participants} />
           {/* <AddLinkPopover /> */}
           <PrimaryButtonSmall
             classes="ml-1"

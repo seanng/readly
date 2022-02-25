@@ -28,6 +28,7 @@ export interface Participant {
   id: string;
   role: string;
   email: string;
+  avatarUrl?: string;
 }
 
 export interface ReaderInfoValue {

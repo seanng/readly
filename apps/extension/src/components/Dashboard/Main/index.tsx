@@ -15,7 +15,7 @@ export function Main() {
         <NoCollectionSelected />
       ) : (
         <>
-          <Header title={collection?.name} />
+          <Header collection={collection} />
           {collection?.links?.length === 0 ? (
             <NoLinksView />
           ) : (

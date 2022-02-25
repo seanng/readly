@@ -108,6 +108,18 @@ export const WhiteButtonSmall = ({ ...props }) => (
   />
 );
 
+export const WhiteButtonSmallPopover = ({ ...props }) => (
+  <Popover.Button
+    className={classNames(
+      BUTTON_DEFAULTS,
+      SMALL_DEFAULTS,
+      WHITE_DEFAULTS,
+      props.classes
+    )}
+    {...props}
+  />
+);
+
 const SvgButton = ({ className = "", ...props }) => (
   <a
     href="#"
