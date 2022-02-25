@@ -3,6 +3,7 @@ export interface Collection {
   role: string;
   name: string;
   participants: Participant[];
+  description?: string;
   links: Link[];
 }
 
@@ -64,6 +65,7 @@ export interface MeResponsePayload {
     role: string;
     collection: {
       id: string;
+      description?: string;
       name: string;
       links: {}[];
       users: {

@@ -1,11 +1,15 @@
 import React, { MouseEventHandler, useEffect, useState } from 'react';
 import { Input } from 'ui';
 import { useStore } from 'contexts/store';
-import { useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { useContextMenu } from 'contexts/context-menu';
 import { NavItem } from './NavItem';
 
 const NEW_COLLECTION_FORM_NAME = 'collectionName';
+
+type FormValues = {
+  collectionName: string;
+};
 
 interface Props {
   setShowNewCollectionInput: (b: boolean) => void;
@@ -17,7 +21,8 @@ export function Body({
   setShowNewCollectionInput,
 }: Props) {
   const { selectCollection, collections, createCollection } = useStore();
-  const { handleSubmit, register, setFocus, resetField } = useForm();
+  const { handleSubmit, register, setFocus, resetField } =
+    useForm<FormValues>();
   const { toggleMenu, setAnchorPoint, setCollectionIdx } = useContextMenu();
 
   useEffect(() => {
@@ -28,7 +33,9 @@ export function Body({
     resetField(NEW_COLLECTION_FORM_NAME);
   }, [showNewCollectionInput]);
 
-  const onSubmit = (input: { collectionName: string }): void => {
+  const onSubmit: SubmitHandler<FormValues> = (input: {
+    collectionName: string;
+  }): void => {
     createCollection(input.collectionName);
     setShowNewCollectionInput(false);
   };

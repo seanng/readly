@@ -7,11 +7,13 @@ import {
   UseGuards,
   Body,
   Patch,
+  Get,
 } from '@nestjs/common';
 import { CollectionsService } from './collections.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
 import { CreateCollectionDto } from './dto/create-collection.dto';
+import { FindOneParams } from './params/find-one.params';
 
 @Controller('collections')
 export class CollectionsController {
@@ -31,6 +33,11 @@ export class CollectionsController {
     @Body() updateCollectionDto: UpdateCollectionDto,
   ) {
     return this.service.update(id, updateCollectionDto);
+  }
+
+  @Get(':id')
+  findOne(@Param() params: FindOneParams) {
+    return this.service.findOne(params.id);
   }
 
   @UseGuards(JwtAuthGuard)

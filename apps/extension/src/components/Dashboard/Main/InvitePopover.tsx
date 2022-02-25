@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { UserCircleIcon, UserAddIcon } from '@heroicons/react/solid';
+import { UserCircleIcon, UserAddIcon, LinkIcon } from '@heroicons/react/solid';
 import { Popover } from '@headlessui/react';
 import { WhiteButtonSmallPopover } from 'ui';
 import { Participant, User } from 'utils/types';
@@ -7,11 +7,12 @@ import { Participant, User } from 'utils/types';
 interface Props {
   participants: Participant[];
   user: User | undefined;
+  disabled: boolean;
 }
 
 const MEMBER = 'MEMBER';
 
-export function InvitePopover({ participants, user }: Props) {
+export function InvitePopover({ participants, user, disabled }: Props) {
   const [role, setRole] = useState('');
   const members = useMemo(() => {
     if (!user?.id) return participants;
@@ -26,11 +27,13 @@ export function InvitePopover({ participants, user }: Props) {
 
   function handleRemoveClick() {}
 
+  function handleCopyClick() {}
+
   return (
     <Popover className="relative">
-      <WhiteButtonSmallPopover>
+      <WhiteButtonSmallPopover disabled={disabled}>
         <UserAddIcon className="-ml-0.5 mr-1 h-4 w-4" aria-hidden="true" />
-        Invite
+        Members
       </WhiteButtonSmallPopover>
       <Popover.Panel className="absolute right-0 top-9 z-10 w-[218px] border border-gray-300 rounded-md divide-y divide-gray-100 bg-white">
         <div className="p-3">
@@ -64,9 +67,14 @@ export function InvitePopover({ participants, user }: Props) {
             </div>
           ))}
         </div>
-        {/* <div className="p-3 space-y-1">
-          <p className="text-xs font-medium">Copy link to collection.</p>
-        </div> */}
+        <a
+          className="p-3 flex items-center text-blue-500"
+          href="#"
+          onClick={handleCopyClick}
+        >
+          <LinkIcon className="h-3 w-auto mr-1" />
+          <span className="text-xs font-medium">Copy invite link</span>
+        </a>
       </Popover.Panel>
     </Popover>
   );

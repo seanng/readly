@@ -1,4 +1,3 @@
-import axios from "lib/axios";
 import Cookies from "universal-cookie";
 import { AUTH_TOKEN_KEY, LOCAL_STORAGE_KEY } from "shared/constants";
 

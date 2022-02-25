@@ -1,7 +1,7 @@
 import { StarIcon } from '@heroicons/react/solid';
 import React from 'react';
-import { FolderOpenIcon, UserAddIcon } from '@heroicons/react/solid';
-import { PrimaryButtonSmall, WhiteButtonSmall } from 'ui';
+import { FolderOpenIcon } from '@heroicons/react/solid';
+import { PrimaryButtonSmall } from 'ui';
 import { useStore } from 'contexts/store';
 import { InvitePopover } from './InvitePopover';
 import { Collection } from 'utils/types';
@@ -22,7 +22,11 @@ export function Header({ collection }: HeaderProps) {
           </div>
         </div>
         <div className="flex flex-none">
-          <InvitePopover user={user} participants={collection.participants} />
+          <InvitePopover
+            user={user}
+            participants={collection.participants}
+            disabled={isCreatingCollection}
+          />
           {/* <AddLinkPopover /> */}
           <PrimaryButtonSmall
             classes="ml-1"

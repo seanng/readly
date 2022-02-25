@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateCollectionDto } from './dto/create-collection.dto';
+import { FindOneParams } from './params/find-one.params';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
 
 @Injectable()
@@ -44,25 +45,24 @@ export class CollectionsService {
     }
   }
 
+  async findOne(id: string) {
+    return this.prismaService.collection.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+  }
+
   async update(id: string, updateCollectionDto: UpdateCollectionDto) {
-    try {
-      const collection = await this.prismaService.collection.update({
-        where: { id },
-        data: updateCollectionDto,
-      });
-      return collection;
-    } catch (error) {
-      console.log('error in update collection: ', error);
-      throw error;
-    }
+    return this.prismaService.collection.update({
+      where: { id },
+      data: updateCollectionDto,
+    });
   }
 
   async delete(id: string) {
-    try {
-      return this.prismaService.collection.delete({ where: { id } });
-    } catch (error) {
-      console.log('error in delete collection: ', error);
-      throw error;
-    }
+    return this.prismaService.collection.delete({ where: { id } });
   }
 }
