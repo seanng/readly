@@ -43,6 +43,8 @@ export interface Store {
     email: string;
   };
   collections?: {
+    name?: string;
+    description?: string;
     role: string;
     participants: {
       id: string;
