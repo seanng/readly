@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import {
   PrimaryButtonWide,
   NavLink,
@@ -8,10 +9,8 @@ import {
   GoogleButton,
 } from "ui";
 import { EMAIL_REGEX, LOGIN, SIGNUP } from "shared/constants";
-import { setAuthCookie, getAuthTokenFromCookie } from "utils/helpers";
+import { setAuthCookie } from "utils/helpers";
 import axios from "lib/axios";
-
-const CHROME_RUNTIME_NOT_FOUND = "chrome runtime not found";
 
 const texts = {
   heading: {
@@ -36,16 +35,20 @@ const texts = {
   },
 };
 
-export function AuthForm({ type = LOGIN }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+export function AuthForm({ type = LOGIN, token }) {
+  const [isAuthenticated, setIsAuthenticated] = useState(!!token);
+  const router = useRouter();
+
   const {
     handleSubmit,
     register,
     setError,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm();
+
   const password = watch("password");
+
   const onSubmit = async (input: {
     email: string;
     password: string;
@@ -60,6 +63,11 @@ export function AuthForm({ type = LOGIN }) {
         message: "AUTHENTICATE",
         data: { token: data.token },
       });
+      const { searchParams } = new URL(window.location.href);
+      if (searchParams.get("cb")) {
+        router.push(searchParams.get("cb"));
+        return;
+      }
       setIsAuthenticated(true);
     } catch (e) {
       if (e?.response?.status === 401) {
@@ -78,11 +86,6 @@ export function AuthForm({ type = LOGIN }) {
       }
     }
   };
-
-  useEffect(() => {
-    const cookie = getAuthTokenFromCookie();
-    if (cookie) setIsAuthenticated(true);
-  }, []);
 
   return isAuthenticated ? (
     <AuthenticatedView />
