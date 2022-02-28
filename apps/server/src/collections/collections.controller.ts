@@ -13,7 +13,7 @@ import { CollectionsService } from './collections.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
 import { CreateCollectionDto } from './dto/create-collection.dto';
-import { FindOneParams } from './params/find-one.params';
+import { IDParams } from './params/id.params';
 
 @Controller('collections')
 export class CollectionsController {
@@ -27,22 +27,31 @@ export class CollectionsController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateCollectionDto: UpdateCollectionDto,
-  ) {
-    return this.service.update(id, updateCollectionDto);
+  @Post(':id/join')
+  join(@Request() req, @Param() params: IDParams) {
+    const { userId } = req.user;
+    return this.service.join(userId, params.id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  update(
+    @Param('id') params: IDParams,
+    @Body() updateCollectionDto: UpdateCollectionDto,
+  ) {
+    return this.service.update(params.id, updateCollectionDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
-  findOne(@Param() params: FindOneParams) {
-    return this.service.findOne(params.id);
+  findOne(@Request() req, @Param() params: IDParams) {
+    const { userId } = req.user;
+    return this.service.findOne(params.id, userId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.service.delete(id);
+  delete(@Param() params: IDParams) {
+    return this.service.delete(params.id);
   }
 }

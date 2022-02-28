@@ -1,8 +1,52 @@
+import { DisplayMode } from "shared/types";
+
 interface Props {
   collectionName: string;
+  onJoin: () => void;
+  mode: DisplayMode;
 }
 
-export function InvitePrompt({ collectionName }: Props) {
+function InvitePromptMain({ collectionName, onJoin, mode }: Props) {
+  if (mode === DisplayMode.exists) {
+    return (
+      <h2 className="text-xl font-bold text-white" id="join-heading">
+        You're already a member of this collection.
+      </h2>
+    );
+  }
+  if (mode === DisplayMode.success) {
+    return (
+      <>
+        <h2 className="text-3xl font-extrabold text-white" id="join-heading">
+          You've joined {collectionName}
+        </h2>
+        <p className="text-lg text-white">
+          Open your extension to find blablabla.
+        </p>
+      </>
+    );
+  }
+  return (
+    <>
+      <h2 className="text-3xl font-extrabold text-white" id="join-heading">
+        Join {collectionName}
+      </h2>
+      <p className="text-lg text-white">
+        You've been invited to join {collectionName}.
+      </p>
+      <a
+        className="block w-full py-3 px-5 text-center bg-white border border-transparent rounded-md shadow-md text-base font-medium text-indigo-700 hover:bg-gray-50 sm:inline-block sm:w-auto"
+        href="#"
+        onClick={onJoin}
+      >
+        Accept Invite
+      </a>
+    </>
+  );
+}
+
+// Hidden, because most of this code is styling.
+export function InvitePrompt(props: Props) {
   return (
     <div className="relative pt-16 bg-white">
       <div
@@ -100,21 +144,7 @@ export function InvitePrompt({ collectionName }: Props) {
               </svg>
             </div>
             <div className="relative max-w-md mx-auto py-12 px-4 space-y-6 sm:max-w-3xl sm:py-16 sm:px-6 lg:max-w-none lg:p-0 lg:col-start-4 lg:col-span-6">
-              <h2
-                className="text-3xl font-extrabold text-white"
-                id="join-heading"
-              >
-                Join {collectionName}?
-              </h2>
-              <p className="text-lg text-white">
-                You've been invited to join {collectionName}.
-              </p>
-              <a
-                className="block w-full py-3 px-5 text-center bg-white border border-transparent rounded-md shadow-md text-base font-medium text-indigo-700 hover:bg-gray-50 sm:inline-block sm:w-auto"
-                href="#"
-              >
-                Accept Invite
-              </a>
+              <InvitePromptMain {...props} />
             </div>
           </div>
         </div>

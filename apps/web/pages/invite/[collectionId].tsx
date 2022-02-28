@@ -1,27 +1,44 @@
 import { GetServerSideProps } from "next";
-import { useRouter } from "next/router";
 import axios from "lib/axios";
 import { InvitePrompt } from "components/InvitePrompt";
 import cookie from "cookie";
+import { useState } from "react";
+import { DisplayMode } from "shared/types";
 
 interface Props {
   success: boolean;
   collectionName: string;
+  collectionId: string;
   token: string;
   setToken: (t: string) => void;
-  path: string;
+  displayMode: DisplayMode;
 }
 
 export default function Invite({
   success,
   collectionName,
+  collectionId,
   token,
-  path,
+  displayMode: initialDisplayMode,
 }: Props) {
-  if (!token) {
-    const router = useRouter();
-    router.replace(`/login?cb=${path}`);
-  }
+  const [displayMode, setDisplayMode] = useState(initialDisplayMode);
+
+  const handleJoin = async () => {
+    try {
+      const endpoint = `/collections/${collectionId}/join`;
+      await axios.post(endpoint, null, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // TODO: send message to chrome extension.
+      setDisplayMode(DisplayMode.success);
+    } catch (error) {
+      if (error.response?.status === 409) {
+        setDisplayMode(DisplayMode.exists);
+      }
+    }
+  };
 
   if (!success) {
     // TODO: Needs design.
@@ -30,7 +47,13 @@ export default function Invite({
     );
   }
 
-  return <InvitePrompt collectionName={collectionName} />;
+  return (
+    <InvitePrompt
+      onJoin={handleJoin}
+      collectionName={collectionName}
+      mode={displayMode}
+    />
+  );
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
@@ -38,36 +61,39 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const parsedCookies = cookie.parse(context.req.headers.cookie);
   const token = parsedCookies[process.env.NEXT_PUBLIC_AUTH_TOKEN_NAME];
 
+  const props = {
+    token,
+    collectionId,
+    success: true,
+    collectionName: "",
+    path: context.resolvedUrl,
+    displayMode: DisplayMode.initial,
+  };
+
   if (!token) {
+    props.success = false;
     return {
-      redirect: {
-        destination: `/login?cb=${context.resolvedUrl}`,
-      },
-      props: {},
+      redirect: { destination: `/login?cb=${context.resolvedUrl}` },
+      props,
     };
   }
 
   // if token, get cookie from context.req.headers.cookie, and attach to Authorization Bearer.
+  // future: get invite details from server?
   try {
-    const { data } = await axios.get(`/collections/${collectionId}`);
-    return {
-      props: {
-        token,
-        success: true,
-        collectionName: data.name,
-        path: context.resolvedUrl,
+    const { data } = await axios.get(`/collections/${collectionId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-    };
+    });
+    props.collectionName = data.name;
+    return { props };
   } catch (error) {
-    return {
-      props: {
-        token,
-        success: false,
-        collectionName: "",
-        path: context.resolvedUrl,
-      },
-    };
+    if (error.response?.status === 409) {
+      props.displayMode = DisplayMode.exists;
+      return { props };
+    }
+    props.success = false;
+    return { props };
   }
-
-  // get invite details from server.
 };
