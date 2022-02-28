@@ -1,6 +1,7 @@
 import { GetServerSideProps } from "next";
 import axios from "lib/axios";
 import { useEffect } from "react";
+import { InvitePrompt } from "components/InvitePrompt";
 import { getAuthTokenFromCookie } from "utils/helpers";
 import { useState } from "react";
 
@@ -17,15 +18,15 @@ export default function Invite({ success, collectionName }: Props) {
     if (t) setToken(t);
   }, []);
 
-  // if !success, hit them with "invite not found."
+  if (!success) {
+    // TODO: Needs design.
+    return (
+      <div className="flex justify-center px-8 pt-8">Invite not found.</div>
+    );
+  }
 
-  return (
-    <div className="flex justify-center px-8 pt-8">
-      <div className="w-full max-w-s">
-        Youve been invited to xxx. Click here to accept the invite.
-      </div>
-    </div>
-  );
+  // TODO: Needs design.
+  return <InvitePrompt collectionName={collectionName} />;
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
