@@ -4,9 +4,15 @@ interface Props {
   collectionName: string;
   onJoin: () => void;
   mode: DisplayMode;
+  isSubmitting: boolean;
 }
 
-function InvitePromptMain({ collectionName, onJoin, mode }: Props) {
+function InvitePromptMain({
+  collectionName,
+  onJoin,
+  mode,
+  isSubmitting,
+}: Props) {
   if (mode === DisplayMode.exists) {
     return (
       <h2 className="text-xl font-bold text-white" id="join-heading">
@@ -34,13 +40,17 @@ function InvitePromptMain({ collectionName, onJoin, mode }: Props) {
       <p className="text-lg text-white">
         You've been invited to join {collectionName}.
       </p>
-      <a
-        className="block w-full py-3 px-5 text-center bg-white border border-transparent rounded-md shadow-md text-base font-medium text-indigo-700 hover:bg-gray-50 sm:inline-block sm:w-auto"
-        href="#"
-        onClick={onJoin}
-      >
-        Accept Invite
-      </a>
+      {isSubmitting ? (
+        <div className="loader ease-linear rounded-full border-4 border-white h-8 w-8" />
+      ) : (
+        <a
+          className="block w-full py-3 px-5 text-center bg-white border border-transparent rounded-md shadow-md text-base font-medium text-indigo-700 hover:bg-gray-50 sm:inline-block sm:w-auto"
+          href="#"
+          onClick={onJoin}
+        >
+          Accept Invite
+        </a>
+      )}
     </>
   );
 }

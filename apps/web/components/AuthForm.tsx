@@ -44,7 +44,7 @@ export function AuthForm({ type = LOGIN, token }) {
     register,
     setError,
     watch,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm();
 
   const password = watch("password");
@@ -59,16 +59,26 @@ export function AuthForm({ type = LOGIN, token }) {
         password: input.password,
       });
       setAuthCookie(data.token);
-      chrome.runtime.sendMessage(process.env.NEXT_PUBLIC_EXTENSION_ID, {
-        message: "AUTHENTICATE",
-        data: { token: data.token },
+      // Promisify background response so isSubmitting stays true
+      await new Promise((resolve) => {
+        chrome.runtime.sendMessage(
+          process.env.NEXT_PUBLIC_EXTENSION_ID,
+          {
+            message: "AUTHENTICATE",
+            data: { token: data.token },
+          },
+          () => {
+            const { searchParams } = new URL(window.location.href);
+            if (searchParams.get("cb")) {
+              router.push(searchParams.get("cb"));
+              resolve(null);
+              return;
+            }
+            setIsAuthenticated(true);
+            resolve(null);
+          }
+        );
       });
-      const { searchParams } = new URL(window.location.href);
-      if (searchParams.get("cb")) {
-        router.push(searchParams.get("cb"));
-        return;
-      }
-      setIsAuthenticated(true);
     } catch (e) {
       if (e?.response?.status === 401) {
         setError("email", {
@@ -165,11 +175,14 @@ export function AuthForm({ type = LOGIN, token }) {
                 <NavLink href="#">Forgot your password?</NavLink>
               </div>
             )}
-            <PrimaryButtonWide type="submit">
-              {texts.submitButton[type]}
+            <PrimaryButtonWide type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <div className="loader ease-linear rounded-full border-2 border-gray-200 h-5 w-5" />
+              ) : (
+                texts.submitButton[type]
+              )}
             </PrimaryButtonWide>
           </form>
-
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -221,7 +234,7 @@ function AuthenticatedView() {
           You're signed in!
         </h2>
         <div className="mt-4 text-center text-sm font-normal">
-          You may close this page and continue on extension pop-up.
+          You may close this page and continue on the extension pop-up.
         </div>
       </div>
     </div>

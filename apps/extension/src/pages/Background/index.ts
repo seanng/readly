@@ -24,7 +24,7 @@ async function handleIncomingMessages(
   sender: chrome.runtime.MessageSender,
   sendResponse: () => void
 ) {
-  if (req.message === 'AUTHENTICATE') authenticate(req.data);
+  if (req.message === 'AUTHENTICATE') authenticate(req.data, sendResponse);
   if (req.message === 'DELETE_COLLECTION') deleteCollection(req.data);
   if (req.message === 'DELETE_LINK') deleteLink(req.data);
   if (req.message === 'NEW_COLLECTION') createCollection(req.data);
@@ -32,6 +32,7 @@ async function handleIncomingMessages(
   if (req.message === 'SIGNOUT') signout(sendResponse);
   if (req.message === 'UPDATE_COLLECTION') updateCollection(req.data);
   if (req.message === 'UPDATE_LINK') updateLink(req.data);
+  if (req.message === 'JOIN_COLLECTION') joinCollection(sendResponse);
 }
 
 async function handleExtensionStartup() {
@@ -60,14 +61,14 @@ async function signout(callback: () => void) {
   callback();
 }
 
-async function authenticate({ token }: { token: string }) {
+async function authenticate({ token }: { token: string }, cb: () => void) {
   await chrome.storage.local.set({ token });
   const myDeets = await fetchMyData();
   await updateCache(myDeets);
-
   chrome.action.setPopup({
     popup: 'popup_dashboard.html',
   });
+  cb();
 }
 
 async function createCollection({ name = '' }) {
@@ -140,6 +141,12 @@ async function updateLink(data: {
 async function deleteLink(data: { linkId: string; collections: Collection[] }) {
   await request(`/links/${data.linkId}`, { method: 'DELETE' });
   updateCache({ collections: data.collections });
+}
+
+async function joinCollection(cb: () => void) {
+  const myDeets = await fetchMyData();
+  await updateCache(myDeets);
+  cb();
 }
 
 async function fetchMyData(): Promise<Store> {
