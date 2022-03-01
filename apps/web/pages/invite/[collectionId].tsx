@@ -21,18 +21,28 @@ export default function Invite({
   token,
   displayMode: initialDisplayMode,
 }: Props) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [displayMode, setDisplayMode] = useState(initialDisplayMode);
 
   const handleJoin = async () => {
     try {
+      setIsSubmitting(true);
       const endpoint = `/collections/${collectionId}/join`;
       await axios.post(endpoint, null, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      // TODO: send message to chrome extension.
-      setDisplayMode(DisplayMode.success);
+      chrome.runtime.sendMessage(
+        process.env.NEXT_PUBLIC_EXTENSION_ID,
+        {
+          message: "JOIN_COLLECTION",
+        },
+        () => {
+          setDisplayMode(DisplayMode.success);
+          setIsSubmitting(false);
+        }
+      );
     } catch (error) {
       if (error.response?.status === 409) {
         setDisplayMode(DisplayMode.exists);
@@ -49,6 +59,7 @@ export default function Invite({
 
   return (
     <InvitePrompt
+      isSubmitting={isSubmitting}
       onJoin={handleJoin}
       collectionName={collectionName}
       mode={displayMode}

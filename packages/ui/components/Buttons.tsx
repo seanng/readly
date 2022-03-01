@@ -9,7 +9,7 @@ const BUTTON_DEFAULTS =
   "inline-flex items-center border focus:outline-none font-medium rounded-md disabled:bg-gray-300";
 const SMALL_DEFAULTS = "px-2.5 py-1.5 text-sm leading-4";
 const WIDE_DEFAULTS =
-  "w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium";
+  "w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium disabled:bg-gray-300";
 const PRIMARY_DEFAULTS =
   "text-white border-transparent text-white bg-blue-600 hover:bg-blue-700";
 const WHITE_DEFAULTS =
