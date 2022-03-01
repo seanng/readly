@@ -1,4 +1,8 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateCollectionDto } from './dto/create-collection.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
@@ -88,9 +92,10 @@ export class CollectionsService {
         },
       },
     });
-    if (collection.users.find((u) => u.userId === userId)) {
+    if (!collection) throw new NotFoundException();
+    if (collection.users.find((u) => u.userId === userId))
       throw new ConflictException();
-    }
+
     return collection;
   }
 
