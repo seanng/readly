@@ -29,9 +29,10 @@ export function useInitialize() {
     chrome.storage.local.get(
       ['collections', 'user', 'activeIdx'],
       function (store) {
-        setCollections(store.collections);
-        setActiveIdx(store.activeIdx);
-        setUser(store.user);
+        const { collections, user, activeIdx } = store;
+        setCollections(collections ?? []);
+        setActiveIdx(activeIdx ?? -1);
+        setUser(user ?? {});
         setIsLoading(false);
       }
     );
