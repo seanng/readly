@@ -3,17 +3,26 @@ import { UserCircleIcon, UserAddIcon, LinkIcon } from '@heroicons/react/solid';
 import { Popover } from '@headlessui/react';
 import { WhiteButtonSmallPopover } from 'ui';
 import { Participant, User } from 'utils/types';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import secrets from 'secrets';
 
 interface Props {
   participants: Participant[];
   user: User | undefined;
   disabled: boolean;
+  collectionId: string;
 }
 
 const MEMBER = 'MEMBER';
 
-export function InvitePopover({ participants, user, disabled }: Props) {
+export function InvitePopover({
+  participants,
+  user,
+  disabled,
+  collectionId,
+}: Props) {
   const [role, setRole] = useState('');
+  const [copied, setCopied] = useState(false);
   const members = useMemo(() => {
     if (!user?.id) return participants;
     // reorder participants so you are first.
@@ -27,7 +36,12 @@ export function InvitePopover({ participants, user, disabled }: Props) {
 
   function handleRemoveClick() {}
 
-  function handleCopyClick() {}
+  function handleCopyClick() {
+    setCopied(true);
+    setTimeout(() => {
+      setCopied(false);
+    }, 1000);
+  }
 
   return (
     <Popover className="relative">
@@ -36,12 +50,12 @@ export function InvitePopover({ participants, user, disabled }: Props) {
         Members
       </WhiteButtonSmallPopover>
       <Popover.Panel className="absolute right-0 top-9 z-10 w-[218px] border border-gray-300 rounded-md divide-y divide-gray-100 bg-white">
-        <div className="p-3">
+        <div className="p-3 pb-0">
           <h5 className="leading-4 text-sm font-medium mb-3">Invite members</h5>
           {members.map((member, i) => (
             <div
               key={member.id}
-              className="flex justify-between space-x-1 items-center text-xs"
+              className="flex justify-between space-x-1 items-center text-xs mb-3"
             >
               <div className="flex space-x-1 items-center ">
                 {member.avatarUrl ? (
@@ -49,7 +63,7 @@ export function InvitePopover({ participants, user, disabled }: Props) {
                 ) : (
                   <UserCircleIcon className="h-4 w-auto" />
                 )}
-                <div className="font-medium ">{member.email}</div>
+                <div className="font-medium">{member.email}</div>
               </div>
               {i === 0 ? (
                 <div className="italic text-gray-500">You</div>
@@ -73,7 +87,15 @@ export function InvitePopover({ participants, user, disabled }: Props) {
           onClick={handleCopyClick}
         >
           <LinkIcon className="h-3 w-auto mr-1" />
-          <span className="text-xs font-medium">Copy invite link</span>
+          <CopyToClipboard
+            text={`${secrets.webUrl}/invite/${collectionId}/`}
+            onCopy={handleCopyClick}
+          >
+            <span className="text-xs font-medium">Copy invite link</span>
+          </CopyToClipboard>
+          {copied && (
+            <span className="ml-4 text-xs text-green-500">Copied!</span>
+          )}
         </a>
       </Popover.Panel>
     </Popover>

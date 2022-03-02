@@ -1,4 +1,4 @@
-import React, { useEffect, SyntheticEvent } from 'react';
+import React, { SyntheticEvent } from 'react';
 import { PrimaryButtonWide, WhiteButtonWide } from 'ui';
 import secrets from 'secrets';
 

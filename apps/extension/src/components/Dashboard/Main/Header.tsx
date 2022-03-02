@@ -26,6 +26,7 @@ export function Header({ collection }: HeaderProps) {
             user={user}
             participants={collection.participants}
             disabled={isCreatingCollection}
+            collectionId={collection.id}
           />
           {/* <AddLinkPopover /> */}
           <PrimaryButtonSmall

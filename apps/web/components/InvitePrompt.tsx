@@ -27,7 +27,7 @@ function InvitePromptMain({
           You've joined {collectionName}
         </h2>
         <p className="text-lg text-white">
-          Open your extension to find blablabla.
+          Open your extension to start contributing.
         </p>
       </>
     );
