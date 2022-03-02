@@ -36,7 +36,7 @@ export class CollectionsController {
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
   update(
-    @Param('id') params: IDParams,
+    @Param() params: IDParams,
     @Body() updateCollectionDto: UpdateCollectionDto,
   ) {
     return this.service.update(params.id, updateCollectionDto);
