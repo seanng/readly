@@ -1,9 +1,6 @@
 import { IsUrl, Length } from 'class-validator';
 
 export class CreateLinkDto {
-  @Length(24, 24)
-  userId: string;
-
   title: string;
 
   @IsUrl()
