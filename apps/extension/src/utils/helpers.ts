@@ -1,3 +1,6 @@
+import { request } from 'lib/request';
+import { MeResponsePayload, Store } from './types';
+
 export function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
 }
@@ -29,4 +32,33 @@ export async function signout() {
   chrome.runtime.sendMessage({ message: 'SIGNOUT' }, () => {
     window.location.href = 'popup_unauth.html';
   });
+}
+
+export function updateCache(store: Store): Promise<void> {
+  return chrome.storage.local.set({
+    ...store,
+    cacheTime: Date.now(),
+  });
+}
+
+export async function fetchMyData(): Promise<Store> {
+  const json = (await request('/users/me')) as MeResponsePayload;
+  return {
+    user: {
+      id: json.id,
+      email: json.email,
+    },
+    collections: json.collections.map((c) => {
+      const { users, ...rest } = c.collection;
+      return {
+        role: c.role,
+        participants: users.map((u) => ({
+          id: u.user.id,
+          role: u.role,
+          email: u.user.email,
+        })),
+        ...rest,
+      };
+    }),
+  };
 }

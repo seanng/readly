@@ -64,7 +64,7 @@ export function AuthForm({ type = LOGIN, token }) {
         chrome.runtime.sendMessage(
           process.env.NEXT_PUBLIC_EXTENSION_ID,
           {
-            message: "AUTHENTICATE",
+            message: "W_USER_AUTHENTICATE",
             data: { token: data.token },
           },
           () => {

@@ -6,6 +6,9 @@ import React, {
 } from 'react';
 import { Collection, Link, User } from 'utils/types';
 import { getPageDescription } from 'utils/helpers';
+import { useConnection } from 'contexts/connection';
+import { useSetBrowserTab } from 'hooks/useSetBrowserTab';
+import { useInitStoreValues } from 'hooks/useInitStoreValues';
 
 interface ContextState {
   activeIdx: number;
@@ -39,6 +42,18 @@ export const StoreProvider = ({ ...props }) => {
   const [isCreatingCollection, setIsCreatingCollection] = useState(false);
   const [user, setUser] = useState<User>();
 
+  useInitStoreValues((store) => {
+    const { collections, user, activeIdx } = store;
+    setCollections(collections ?? []);
+    setActiveIdx(activeIdx ?? -1);
+    setUser(user ?? { id: '', email: '' });
+    setIsLoading(false);
+  });
+
+  useSetBrowserTab(([tab]) => setBrowserTab(tab));
+
+  const port = useConnection();
+
   function selectCollection(idx: number) {
     setActiveIdx(idx);
     chrome.storage.local.set({ activeIdx: idx });
@@ -67,8 +82,8 @@ export const StoreProvider = ({ ...props }) => {
       return result;
     });
     setIsCreatingCollection(true);
-    chrome.runtime.sendMessage({
-      message: 'NEW_COLLECTION',
+    port?.postMessage({
+      message: 'P_COLLECTION_CREATE',
       data: { name },
     });
   }
@@ -78,8 +93,8 @@ export const StoreProvider = ({ ...props }) => {
     const c = collections.slice();
     c[idx] = { ...c[idx], ...data };
     setCollections(c);
-    chrome.runtime.sendMessage({
-      message: 'UPDATE_COLLECTION',
+    port?.postMessage({
+      message: 'P_COLLECTION_UPDATE',
       data: {
         collections: c,
         collectionId,
@@ -93,8 +108,8 @@ export const StoreProvider = ({ ...props }) => {
     const collectionId = c[idx].id;
     c.splice(idx, 1);
     setCollections(c);
-    chrome.runtime.sendMessage({
-      message: 'DELETE_COLLECTION',
+    port?.postMessage({
+      message: 'P_COLLECTION_DELETE',
       data: { collectionId, collections: c },
     });
   }
@@ -104,8 +119,8 @@ export const StoreProvider = ({ ...props }) => {
     setIsLoading(true);
     const description = await getPageDescription(browserTab);
     const collectionId = collections[activeIdx].id;
-    chrome.runtime.sendMessage({
-      message: 'NEW_LINK',
+    port?.postMessage({
+      message: 'P_LINK_CREATE',
       data: {
         title: browserTab.title,
         url: browserTab.url,
@@ -124,8 +139,8 @@ export const StoreProvider = ({ ...props }) => {
       ...data,
     };
     setCollections(c);
-    chrome.runtime.sendMessage({
-      message: 'UPDATE_LINK',
+    port?.postMessage({
+      message: 'P_LINK_UPDATE',
       data: {
         linkId,
         collections: c,
@@ -139,8 +154,8 @@ export const StoreProvider = ({ ...props }) => {
     const c = collections.slice();
     c[activeIdx].links.splice(linkIdx, 1);
     setCollections(c);
-    chrome.runtime.sendMessage({
-      message: 'DELETE_LINK',
+    port?.postMessage({
+      message: 'P_LINK_DELETE',
       data: { linkId, collections: c },
     });
   }

@@ -5,7 +5,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { useContextMenu } from 'contexts/context-menu';
 import { NavItem } from './NavItem';
 
-const NEW_COLLECTION_FORM_NAME = 'collectionName';
+const FORM_NAME = 'collectionName';
 
 type FormValues = {
   collectionName: string;
@@ -27,10 +27,10 @@ export function Body({
 
   useEffect(() => {
     if (showNewCollectionInput) {
-      setFocus(NEW_COLLECTION_FORM_NAME);
+      setFocus(FORM_NAME);
       return;
     }
-    resetField(NEW_COLLECTION_FORM_NAME);
+    resetField(FORM_NAME);
   }, [showNewCollectionInput]);
 
   const onSubmit: SubmitHandler<FormValues> = (input: {
@@ -80,7 +80,7 @@ export function Body({
                     setShowNewCollectionInput(false);
                   }
                 },
-                ...register(NEW_COLLECTION_FORM_NAME, {
+                ...register(FORM_NAME, {
                   onBlur: (e) => {
                     setShowNewCollectionInput(false);
                   },

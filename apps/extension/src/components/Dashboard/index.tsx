@@ -4,14 +4,15 @@ import { Main } from './Main';
 import { Sidebar } from './Sidebar';
 import { SpinningOverlay } from './SpinningOverlay';
 import { StoreProvider, useStore } from 'contexts/store';
+import { ConnectionProvider } from 'contexts/connection';
 import { ContextMenuProvider } from 'contexts/context-menu';
 import { ModalProvider } from 'contexts/modal';
-import { useInitialize } from 'hooks/useInitialize';
-import { useIncomingMessageHandler } from 'hooks/useIncomingMessageHandler';
+import { useConfigureUI } from 'hooks/useConfigureUI';
+import { useMessageListener } from 'hooks/useMessageListener';
 
 function Application() {
-  useInitialize();
-  useIncomingMessageHandler();
+  useConfigureUI();
+  useMessageListener();
 
   return (
     <>
@@ -33,12 +34,14 @@ function Application() {
 
 export function Dashboard() {
   return (
-    <StoreProvider>
-      <ModalProvider>
-        <ContextMenuProvider>
-          <Application />
-        </ContextMenuProvider>
-      </ModalProvider>
-    </StoreProvider>
+    <ConnectionProvider>
+      <StoreProvider>
+        <ModalProvider>
+          <ContextMenuProvider>
+            <Application />
+          </ContextMenuProvider>
+        </ModalProvider>
+      </StoreProvider>
+    </ConnectionProvider>
   );
 }

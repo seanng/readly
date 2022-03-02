@@ -36,7 +36,7 @@ export default function Invite({
       chrome.runtime.sendMessage(
         process.env.NEXT_PUBLIC_EXTENSION_ID,
         {
-          message: "JOIN_COLLECTION",
+          message: "W_COLLECTION_JOIN",
         },
         () => {
           setDisplayMode(DisplayMode.success);

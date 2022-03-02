@@ -45,7 +45,9 @@ export interface Store {
     email: string;
   };
   collections?: {
-    name?: string;
+    id: string;
+    links: Link[];
+    name: string;
     description?: string;
     role: string;
     participants: {
@@ -67,7 +69,7 @@ export interface MeResponsePayload {
       id: string;
       description?: string;
       name: string;
-      links: {}[];
+      links: Link[];
       users: {
         role: string;
         user: {
