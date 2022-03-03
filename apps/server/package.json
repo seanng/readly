@@ -48,6 +48,8 @@
     "@nestjs/mapped-types": "^1.0.1",
     "@nestjs/passport": "^8.1.0",
     "@nestjs/platform-express": "8.2.5",
+    "@nestjs/platform-socket.io": "^8.4.0",
+    "@nestjs/websockets": "^8.4.0",
     "@prisma/client": "3.10.0",
     "bcrypt": "^5.0.1",
     "class-transformer": "^0.5.1",

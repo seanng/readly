@@ -1,3 +1,5 @@
+import { io, Socket } from 'socket.io-client';
+import secrets from 'secrets';
 import { getStorageItems } from 'utils/helpers';
 import {
   createCollection,
@@ -23,11 +25,20 @@ chrome.runtime.onConnect.addListener((port) => {
   }
 
   // Connect to socket.
+  const socket = io(secrets.serverBaseUrl, { transports: ['websocket'] });
+
+  socket.on('connect', () => {
+    console.log('connected.', socket.connected);
+  });
+
   port.onMessage.addListener((req) => handleConnect(req, port));
-  port.onDisconnect.addListener((port) => handlePopupDisconnect(port));
+  port.onDisconnect.addListener((port) => handlePopupDisconnect(port, socket));
 });
 
-function handlePopupDisconnect(port: chrome.runtime.Port) {}
+function handlePopupDisconnect(port: chrome.runtime.Port, socket: Socket) {
+  console.log('disconnecting.');
+  socket.disconnect();
+}
 
 function handleConnect(req: any, port: chrome.runtime.Port) {
   if (req.message === 'P_COLLECTION_CREATE') createCollection(req.data, port);
@@ -38,11 +49,7 @@ function handleConnect(req: any, port: chrome.runtime.Port) {
   if (req.message === 'P_LINK_DELETE') deleteLink(req.data);
 }
 
-function handleMessages(
-  req: any,
-  sender: chrome.runtime.MessageSender,
-  sendResponse: () => void
-) {
+function handleMessages(req: any, _: any, sendResponse: () => void) {
   if (req.message === 'W_USER_AUTHENTICATE')
     authenticateUser(req.data, sendResponse);
   if (req.message === 'W_COLLECTION_JOIN') joinCollection(sendResponse);
