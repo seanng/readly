@@ -13,10 +13,20 @@ import {
   signoutUser,
 } from 'utils/handlers';
 
+let token: string;
+
 chrome.runtime.onInstalled.addListener(handleExtensionStartup);
 chrome.runtime.onStartup.addListener(handleExtensionStartup);
-chrome.runtime.onMessageExternal.addListener(handleMessages);
-chrome.runtime.onMessage.addListener(handleMessages);
+chrome.runtime.onMessageExternal.addListener(handleExternalMessages);
+chrome.runtime.onMessage.addListener(handleExternalMessages);
+
+async function handleExtensionStartup() {
+  const storageItems = await getStorageItems();
+  token = storageItems?.token;
+  chrome.action.setPopup({
+    popup: storageItems?.token ? 'popup_dashboard.html' : 'popup_unauth.html',
+  });
+}
 
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name !== 'popup') {
@@ -24,23 +34,37 @@ chrome.runtime.onConnect.addListener((port) => {
     return;
   }
 
-  // Connect to socket.
-  const socket = io(secrets.serverBaseUrl, { transports: ['websocket'] });
-
-  socket.on('connect', () => {
-    console.log('connected.', socket.connected);
+  const socket = io(secrets.serverBaseUrl, {
+    transports: ['websocket'],
+    auth: { token },
   });
 
-  port.onMessage.addListener((req) => handleConnect(req, port));
+  handleSocketMessages(socket);
+
+  port.onMessage.addListener((req) => handleConnectMessages(req, port));
   port.onDisconnect.addListener((port) => handlePopupDisconnect(port, socket));
 });
 
+interface NewJoinerData {
+  id: string;
+  email: string;
+}
+
+function handleSocketMessages(socket: Socket) {
+  socket.on('connect_error', () => {
+    console.log('connect_error.');
+  });
+
+  socket.on('NEW_JOINER', (data: NewJoinerData) => {
+    console.log('NEW_JOINER data: ', data);
+  });
+}
+
 function handlePopupDisconnect(port: chrome.runtime.Port, socket: Socket) {
-  console.log('disconnecting.');
   socket.disconnect();
 }
 
-function handleConnect(req: any, port: chrome.runtime.Port) {
+function handleConnectMessages(req: any, port: chrome.runtime.Port) {
   if (req.message === 'P_COLLECTION_CREATE') createCollection(req.data, port);
   if (req.message === 'P_COLLECTION_UPDATE') updateCollection(req.data);
   if (req.message === 'P_COLLECTION_DELETE') deleteCollection(req.data);
@@ -49,20 +73,13 @@ function handleConnect(req: any, port: chrome.runtime.Port) {
   if (req.message === 'P_LINK_DELETE') deleteLink(req.data);
 }
 
-function handleMessages(req: any, _: any, sendResponse: () => void) {
+function handleExternalMessages(req: any, _: any, sendResponse: () => void) {
   if (req.message === 'W_USER_AUTHENTICATE')
-    authenticateUser(req.data, sendResponse);
+    authenticateUser(req.data, async () => {
+      const storageItems = await getStorageItems();
+      token = storageItems?.token;
+      sendResponse();
+    });
   if (req.message === 'W_COLLECTION_JOIN') joinCollection(sendResponse);
   if (req.message === 'SIGNOUT') signoutUser(sendResponse);
-}
-
-async function handleExtensionStartup() {
-  await setPopupOnLoad();
-}
-
-async function setPopupOnLoad() {
-  const storageItems = await getStorageItems();
-  chrome.action.setPopup({
-    popup: storageItems?.token ? 'popup_dashboard.html' : 'popup_unauth.html',
-  });
 }

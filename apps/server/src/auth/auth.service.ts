@@ -24,6 +24,11 @@ export class AuthService {
     return hashSync(text, 8);
   }
 
+  async getUserFromAuthToken(token: string) {
+    const { sub } = await this.jwtService.verifyAsync(token);
+    return this.usersService.findByIdWithCollectionIds(sub);
+  }
+
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
     if (user && this.isPasswordValid(pass, user.password)) {

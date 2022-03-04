@@ -10,7 +10,7 @@ function Login(props) {
 export default Login;
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const parsedCookies = cookie.parse(context.req.headers.cookie);
+  const parsedCookies = cookie.parse(context.req.headers?.cookie ?? "");
   const token = parsedCookies[process.env.NEXT_PUBLIC_AUTH_TOKEN_NAME] ?? null;
   return { props: { token } };
 };

@@ -3,7 +3,7 @@ import { fetchMyData, updateCache } from 'utils/helpers';
 
 export async function authenticateUser(
   { token }: { token: string },
-  cb: () => void
+  cb: () => Promise<void>
 ) {
   await chrome.storage.local.set({ token });
   const myDeets = await fetchMyData();

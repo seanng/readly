@@ -49,6 +49,17 @@ export function AuthForm({ type = LOGIN, token }) {
 
   const password = watch("password");
 
+  const authCallback = (resolve) => {
+    const { searchParams } = new URL(window.location.href);
+    if (searchParams.get("cb")) {
+      router.push(searchParams.get("cb"));
+      resolve(null);
+      return;
+    }
+    setIsAuthenticated(true);
+    resolve(null);
+  };
+
   const onSubmit = async (input: {
     email: string;
     password: string;
@@ -61,22 +72,17 @@ export function AuthForm({ type = LOGIN, token }) {
       setAuthCookie(data.token);
       // Promisify background response so isSubmitting stays true
       await new Promise((resolve) => {
+        if (!chrome?.runtime) {
+          authCallback(resolve);
+          return;
+        }
         chrome.runtime.sendMessage(
           process.env.NEXT_PUBLIC_EXTENSION_ID,
           {
             message: "W_USER_AUTHENTICATE",
             data: { token: data.token },
           },
-          () => {
-            const { searchParams } = new URL(window.location.href);
-            if (searchParams.get("cb")) {
-              router.push(searchParams.get("cb"));
-              resolve(null);
-              return;
-            }
-            setIsAuthenticated(true);
-            resolve(null);
-          }
+          () => authCallback(resolve)
         );
       });
     } catch (e) {

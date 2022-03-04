@@ -62,8 +62,6 @@ export class CollectionsService {
     if (collection.users.find((u) => u.userId === userId)) {
       throw new ConflictException();
     }
-    // what other guards??
-
     return this.prismaService.collection.update({
       where: { id: collectionId },
       data: {
@@ -74,6 +72,18 @@ export class CollectionsService {
               user: { connect: { id: userId } },
             },
           ],
+        },
+      },
+      select: {
+        users: {
+          select: {
+            user: {
+              select: {
+                id: true,
+                email: true,
+              },
+            },
+          },
         },
       },
     });

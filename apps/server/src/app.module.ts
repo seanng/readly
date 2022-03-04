@@ -4,7 +4,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { CollectionsModule } from './collections/collections.module';
 import { LinksModule } from './links/links.module';
-import { EventsModule } from './events/events.module';
+import { SocketsModule } from './sockets/sockets.module';
 
 @Module({
   imports: [
@@ -12,7 +12,7 @@ import { EventsModule } from './events/events.module';
     UsersModule,
     CollectionsModule,
     LinksModule,
-    EventsModule,
+    SocketsModule,
   ],
   controllers: [AppController],
   providers: [],

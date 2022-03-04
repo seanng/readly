@@ -33,6 +33,11 @@ export default function Invite({
           Authorization: `Bearer ${token}`,
         },
       });
+      if (!chrome?.runtime) {
+        setDisplayMode(DisplayMode.success);
+        setIsSubmitting(false);
+        return;
+      }
       chrome.runtime.sendMessage(
         process.env.NEXT_PUBLIC_EXTENSION_ID,
         {
@@ -69,8 +74,9 @@ export default function Invite({
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { collectionId } = context.params;
-  const parsedCookies = cookie.parse(context.req.headers.cookie);
-  const token = parsedCookies[process.env.NEXT_PUBLIC_AUTH_TOKEN_NAME];
+  const parsedCookies = cookie.parse(context.req.headers?.cookie ?? "");
+  const token =
+    parsedCookies?.[process.env.NEXT_PUBLIC_AUTH_TOKEN_NAME] ?? null;
 
   const props = {
     token,
