@@ -1,7 +1,7 @@
 import { useStore } from 'contexts/store';
 import { useConnection } from 'contexts/connection';
 import { useEffect } from 'react';
-import { Collection, Link } from 'utils/types';
+import { Collection, Link, Participant } from 'utils/types';
 
 interface ListenerProps {
   message: string;
@@ -32,6 +32,10 @@ export function useMessageListener() {
     setIsCreatingCollection(false);
   }
 
+  function collectionsUpdateReceived(data: { collections: Collection[] }) {
+    setCollections(data.collections);
+  }
+
   function signoutSuccess() {
     console.log('signoutSuccess: ', signoutSuccess);
     window.location.href = 'popup_unauth.html';
@@ -42,6 +46,8 @@ export function useMessageListener() {
       if (message === 'LINK_POST_SUCCESS') linkPostSuccess(data);
       if (message === 'COLLECTION_POST_SUCCESS') collectionPostSuccess(data);
       if (message === 'USER_SIGNOUT_SUCCESS') signoutSuccess();
+      if (message === 'COLLECTIONS_UPDATE_RECEIVED')
+        collectionsUpdateReceived(data);
     }
 
     port?.onMessage.addListener(listener);

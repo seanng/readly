@@ -2,7 +2,7 @@ import { request } from 'lib/request';
 import { fetchMyData, updateCache } from 'utils/helpers';
 import { Collection } from 'utils/types';
 
-export async function createCollection(
+export async function requestCollectionCreate(
   { name = '' },
   port: chrome.runtime.Port
 ) {
@@ -25,7 +25,7 @@ export async function createCollection(
   });
 }
 
-export async function updateCollection(data: {
+export async function requestCollectionUpdate(data: {
   collectionId: string;
   collections: Collection[];
   body: Partial<Collection>;
@@ -35,7 +35,7 @@ export async function updateCollection(data: {
   updateCache({ collections: data.collections });
 }
 
-export async function deleteCollection(data: {
+export async function requestCollectionDelete(data: {
   collectionId: string;
   collections: Collection[];
 }) {
@@ -43,8 +43,31 @@ export async function deleteCollection(data: {
   updateCache({ collections: data.collections });
 }
 
-export async function joinCollection(cb: () => void) {
+export async function requestCollectionJoin(cb: () => void) {
   const myDeets = await fetchMyData();
   await updateCache(myDeets);
   cb();
+}
+
+export async function receiveCollectionJoin(
+  data: {
+    user: {
+      id: string;
+      email: string;
+      role: string;
+    };
+    collectionId: string;
+  },
+  port: chrome.runtime.Port
+) {
+  const { collections } = await chrome.storage.local.get(['collections']);
+  const idx = collections.findIndex(
+    (c: Collection) => c.id === data.collectionId
+  );
+  collections[idx].participants.push(data.user);
+  updateCache({ collections });
+  port.postMessage({
+    message: 'COLLECTIONS_UPDATE_RECEIVED',
+    data: { collections },
+  });
 }

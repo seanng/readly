@@ -2,23 +2,24 @@ import { io, Socket } from 'socket.io-client';
 import secrets from 'secrets';
 import { getStorageItems } from 'utils/helpers';
 import {
-  createCollection,
-  createLink,
-  deleteCollection,
-  deleteLink,
-  joinCollection,
-  updateCollection,
-  updateLink,
+  requestCollectionCreate,
+  requestLinkCreate,
+  requestCollectionDelete,
+  requestLinkDelete,
+  requestCollectionJoin,
+  requestCollectionUpdate,
+  requestLinkUpdate,
   authenticateUser,
-  signoutUser,
-} from 'utils/handlers';
+  requestUserSignout,
+  receiveCollectionJoin,
+} from './handlers';
 
 let token: string;
 
 chrome.runtime.onInstalled.addListener(handleExtensionStartup);
 chrome.runtime.onStartup.addListener(handleExtensionStartup);
-chrome.runtime.onMessageExternal.addListener(handleExternalMessages);
-chrome.runtime.onMessage.addListener(handleExternalMessages);
+chrome.runtime.onMessageExternal.addListener(handleExternalEvents);
+chrome.runtime.onMessage.addListener(handleExternalEvents);
 
 async function handleExtensionStartup() {
   const storageItems = await getStorageItems();
@@ -39,47 +40,44 @@ chrome.runtime.onConnect.addListener((port) => {
     auth: { token },
   });
 
-  handleSocketMessages(socket);
+  handleSocketEvents(socket, port);
 
-  port.onMessage.addListener((req) => handleConnectMessages(req, port));
+  port.onMessage.addListener((req) => handleConnectionEvents(req, port));
   port.onDisconnect.addListener((port) => handlePopupDisconnect(port, socket));
 });
-
-interface NewJoinerData {
-  id: string;
-  email: string;
-}
-
-function handleSocketMessages(socket: Socket) {
-  socket.on('connect_error', () => {
-    console.log('connect_error.');
-  });
-
-  socket.on('NEW_JOINER', (data: NewJoinerData) => {
-    console.log('NEW_JOINER data: ', data);
-  });
-}
 
 function handlePopupDisconnect(port: chrome.runtime.Port, socket: Socket) {
   socket.disconnect();
 }
 
-function handleConnectMessages(req: any, port: chrome.runtime.Port) {
-  if (req.message === 'P_COLLECTION_CREATE') createCollection(req.data, port);
-  if (req.message === 'P_COLLECTION_UPDATE') updateCollection(req.data);
-  if (req.message === 'P_COLLECTION_DELETE') deleteCollection(req.data);
-  if (req.message === 'P_LINK_CREATE') createLink(req.data, port);
-  if (req.message === 'P_LINK_UPDATE') updateLink(req.data);
-  if (req.message === 'P_LINK_DELETE') deleteLink(req.data);
+// EVENT HANDLERS
+
+function handleConnectionEvents(req: any, port: chrome.runtime.Port) {
+  if (req.message === 'P_COLLECTION_CREATE')
+    requestCollectionCreate(req.data, port);
+  if (req.message === 'P_COLLECTION_UPDATE') requestCollectionUpdate(req.data);
+  if (req.message === 'P_COLLECTION_DELETE') requestCollectionDelete(req.data);
+  if (req.message === 'P_LINK_CREATE') requestLinkCreate(req.data, port);
+  if (req.message === 'P_LINK_UPDATE') requestLinkUpdate(req.data);
+  if (req.message === 'P_LINK_DELETE') requestLinkDelete(req.data);
 }
 
-function handleExternalMessages(req: any, _: any, sendResponse: () => void) {
+function handleExternalEvents(req: any, _: any, sendResponse: () => void) {
   if (req.message === 'W_USER_AUTHENTICATE')
     authenticateUser(req.data, async () => {
       const storageItems = await getStorageItems();
       token = storageItems?.token;
       sendResponse();
     });
-  if (req.message === 'W_COLLECTION_JOIN') joinCollection(sendResponse);
-  if (req.message === 'SIGNOUT') signoutUser(sendResponse);
+  if (req.message === 'W_COLLECTION_JOIN') requestCollectionJoin(sendResponse);
+  if (req.message === 'SIGNOUT') requestUserSignout(sendResponse);
+}
+
+function handleSocketEvents(socket: Socket, port: chrome.runtime.Port) {
+  socket.on('connect_error', handleConnectionError);
+  socket.on('NEW_JOINER', (data) => receiveCollectionJoin(data, port));
+}
+
+function handleConnectionError() {
+  console.log('connect_error.');
 }

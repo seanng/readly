@@ -14,7 +14,7 @@ export async function authenticateUser(
   cb();
 }
 
-export async function signoutUser(callback: () => void) {
+export async function requestUserSignout(callback: () => void) {
   // TODO: save cache to db.
   // remove cookie so web displays signin page.
   await chrome.cookies.remove({

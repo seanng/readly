@@ -18,6 +18,21 @@ const userData: Prisma.UserCreateInput[] = [
     // password is asdfasdf
     password: '$2b$08$KYHGJA48j4RW2Liy.gtNoOy21m0xVoWikkC89WMaIMPAGDNVURni2',
   },
+  {
+    email: 'd@d.com',
+    // password is asdfasdf
+    password: '$2b$08$KYHGJA48j4RW2Liy.gtNoOy21m0xVoWikkC89WMaIMPAGDNVURni2',
+  },
+  {
+    email: 'e@e.com',
+    // password is asdfasdf
+    password: '$2b$08$KYHGJA48j4RW2Liy.gtNoOy21m0xVoWikkC89WMaIMPAGDNVURni2',
+  },
+  {
+    email: 'f@f.com',
+    // password is asdfasdf
+    password: '$2b$08$KYHGJA48j4RW2Liy.gtNoOy21m0xVoWikkC89WMaIMPAGDNVURni2',
+  },
 ];
 
 async function dropCollections() {
@@ -43,6 +58,14 @@ async function main() {
               collection: {
                 create: {
                   name: `${u.email}'s collection`,
+                },
+              },
+            },
+            {
+              role: 'CREATOR',
+              collection: {
+                create: {
+                  name: `${u.email}'s 2nd collection`,
                 },
               },
             },

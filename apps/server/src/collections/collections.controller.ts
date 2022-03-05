@@ -36,7 +36,13 @@ export class CollectionsController {
     const { userId } = req.user;
     const collection = await this.collectionsService.join(userId, params.id);
     const userObj = collection.users.find((u) => u.user.id === userId);
-    this.socketsService.socket.to(params.id).emit('NEW_JOINER', userObj.user);
+    this.socketsService.socket.to(params.id).emit('NEW_JOINER', {
+      user: {
+        ...userObj.user,
+        role: userObj.role,
+      },
+      collectionId: params.id,
+    });
     return collection;
   }
 

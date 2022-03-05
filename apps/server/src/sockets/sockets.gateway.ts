@@ -29,14 +29,6 @@ export class SocketsGateway
 
   private logger: Logger = new Logger('SocketsGateway');
 
-  // @SubscribeMessage('msgToServer')
-  // handleMessage(
-  //   @ConnectedSocket() client: Socket,
-  //   @MessageBody() payload: string,
-  // ): void {
-  //   console.log('client data: ', client.data);
-  //   this.server.emit('msgToClient', payload);
-  // }
   afterInit(server: Server) {
     this.socketsService.socket = server;
   }

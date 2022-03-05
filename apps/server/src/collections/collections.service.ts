@@ -77,6 +77,7 @@ export class CollectionsService {
       select: {
         users: {
           select: {
+            role: true,
             user: {
               select: {
                 id: true,

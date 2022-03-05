@@ -2,7 +2,7 @@ import { request } from 'lib/request';
 import { updateCache } from 'utils/helpers';
 import { Collection, CreateLinkPayload, Link } from 'utils/types';
 
-export async function createLink(
+export async function requestLinkCreate(
   data: CreateLinkPayload,
   port: chrome.runtime.Port
 ) {
@@ -23,7 +23,7 @@ export async function createLink(
   });
 }
 
-export async function updateLink(data: {
+export async function requestLinkUpdate(data: {
   linkId: string;
   collections: Collection[];
   body: Partial<Link>;
@@ -33,7 +33,7 @@ export async function updateLink(data: {
   updateCache({ collections: data.collections });
 }
 
-export async function deleteLink(data: {
+export async function requestLinkDelete(data: {
   linkId: string;
   collections: Collection[];
 }) {
