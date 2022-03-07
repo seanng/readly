@@ -41,8 +41,7 @@ export function updateCache(store: Store): Promise<void> {
   });
 }
 
-export async function fetchMyData(): Promise<Store> {
-  const json = (await request('/users/me')) as MeResponsePayload;
+function transformMe(json: MeResponsePayload) {
   return {
     user: {
       id: json.id,
@@ -61,4 +60,9 @@ export async function fetchMyData(): Promise<Store> {
       };
     }),
   };
+}
+
+export async function fetchMyData(): Promise<Store> {
+  const json = (await request('/users/me')) as MeResponsePayload;
+  return transformMe(json);
 }

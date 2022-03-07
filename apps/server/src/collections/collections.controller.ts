@@ -36,11 +36,8 @@ export class CollectionsController {
     const { userId } = req.user;
     const collection = await this.collectionsService.join(userId, params.id);
     const userObj = collection.users.find((u) => u.user.id === userId);
-    this.socketsService.socket.to(params.id).emit('NEW_JOINER', {
-      user: {
-        ...userObj.user,
-        role: userObj.role,
-      },
+    this.socketsService.socket.to(params.id).emit('S_NEW_JOINER', {
+      user: { ...userObj.user, role: userObj.role },
       collectionId: params.id,
     });
     return collection;
@@ -48,11 +45,22 @@ export class CollectionsController {
 
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  update(
+  async update(
+    @Request() req,
     @Param() params: IDParams,
     @Body() updateCollectionDto: UpdateCollectionDto,
   ) {
-    return this.collectionsService.update(params.id, updateCollectionDto);
+    const { userId } = req.user;
+    const collection = await this.collectionsService.update(
+      params.id,
+      updateCollectionDto,
+    );
+    this.socketsService.socket.to(params.id).emit('S_COLLECTION_UPDATE', {
+      userId,
+      data: updateCollectionDto,
+      collectionId: params.id,
+    });
+    return collection;
   }
 
   @UseGuards(JwtAuthGuard)

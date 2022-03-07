@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 import secrets from 'secrets';
-import { getStorageItems } from 'utils/helpers';
+import { getStorageItems, updateCache } from 'utils/helpers';
 import {
   requestCollectionCreate,
   requestLinkCreate,
@@ -12,6 +12,9 @@ import {
   authenticateUser,
   requestUserSignout,
   receiveCollectionJoin,
+  receiveCollectionUpdate,
+  receiveLinkCreate,
+  receiveLinkDelete,
 } from './handlers';
 
 let token: string;
@@ -29,11 +32,15 @@ async function handleExtensionStartup() {
   });
 }
 
-chrome.runtime.onConnect.addListener((port) => {
+chrome.runtime.onConnect.addListener(async (port) => {
   if (port.name !== 'popup') {
     console.error('Something else is trying to connect...', port.name);
     return;
   }
+
+  // if service worker sleeps, re-set token.
+  const storageItems = await getStorageItems();
+  token = storageItems?.token;
 
   const socket = io(secrets.serverBaseUrl, {
     transports: ['websocket'],
@@ -41,6 +48,9 @@ chrome.runtime.onConnect.addListener((port) => {
   });
 
   handleSocketEvents(socket, port);
+  port.postMessage({
+    message: 'onConnect invoked.',
+  });
 
   port.onMessage.addListener((req) => handleConnectionEvents(req, port));
   port.onDisconnect.addListener((port) => handlePopupDisconnect(port, socket));
@@ -75,7 +85,12 @@ function handleExternalEvents(req: any, _: any, sendResponse: () => void) {
 
 function handleSocketEvents(socket: Socket, port: chrome.runtime.Port) {
   socket.on('connect_error', handleConnectionError);
-  socket.on('NEW_JOINER', (data) => receiveCollectionJoin(data, port));
+  socket.on('S_NEW_JOINER', (data) => receiveCollectionJoin(data, port));
+  socket.on('S_COLLECTION_UPDATE', (data) =>
+    receiveCollectionUpdate(data, port)
+  );
+  socket.on('S_NEW_LINK', (data) => receiveLinkCreate(data, port));
+  socket.on('S_DELETE_LINK', (data) => receiveLinkDelete(data, port));
 }
 
 function handleConnectionError() {

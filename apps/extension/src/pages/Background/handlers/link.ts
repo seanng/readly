@@ -1,6 +1,6 @@
 import { request } from 'lib/request';
 import { updateCache } from 'utils/helpers';
-import { Collection, CreateLinkPayload, Link } from 'utils/types';
+import { Collection, CreateLinkPayload, Link, Store } from 'utils/types';
 
 export async function requestLinkCreate(
   data: CreateLinkPayload,
@@ -39,4 +39,55 @@ export async function requestLinkDelete(data: {
 }) {
   await request(`/links/${data.linkId}`, { method: 'DELETE' });
   updateCache({ collections: data.collections });
+}
+
+export async function receiveLinkCreate(
+  payload: {
+    userId: string;
+    collectionId: string;
+    link: Link;
+  },
+  port: chrome.runtime.Port
+) {
+  const { collections, user } = (await chrome.storage.local.get([
+    'collections',
+    'user',
+  ])) as Store;
+  if (!collections || user?.id === payload.userId) return;
+  const idx = collections.findIndex(
+    (c: Collection) => c.id === payload.collectionId
+  );
+  collections[idx].links.push(payload.link);
+  updateCache({ collections });
+  port.postMessage({
+    message: 'COLLECTIONS_UPDATE_RECEIVED',
+    data: { collections },
+  });
+}
+
+export async function receiveLinkDelete(
+  payload: {
+    userId: string;
+    collectionId: string;
+    linkId: string;
+  },
+  port: chrome.runtime.Port
+) {
+  const { collections, user } = (await chrome.storage.local.get([
+    'collections',
+    'user',
+  ])) as Store;
+  if (!collections || user?.id === payload.userId) return;
+  const colIdx = collections.findIndex(
+    (c: Collection) => c.id === payload.collectionId
+  );
+  const linkIdx = collections[colIdx].links.findIndex(
+    (link) => link.id === payload.linkId
+  );
+  collections[colIdx].links.splice(linkIdx, 1);
+  updateCache({ collections });
+  port.postMessage({
+    message: 'COLLECTIONS_UPDATE_RECEIVED',
+    data: { collections },
+  });
 }

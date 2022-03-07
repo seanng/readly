@@ -4,7 +4,7 @@
   "name": "Readly Extension",
   "options_page": "options.html",
   "background": { "service_worker": "background.bundle.js" },
-  "host_permissions": ["<all_urls>", "http://localhost:3002"],
+  "host_permissions": ["<all_urls>"],
   "permissions": ["storage", "cookies", "tabs", "scripting"],
   "action": {
     "default_popup": "auth_popup.html",

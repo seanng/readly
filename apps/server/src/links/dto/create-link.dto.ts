@@ -3,10 +3,10 @@ import { IsUrl, Length } from 'class-validator';
 export class CreateLinkDto {
   title: string;
 
-  @IsUrl()
+  // @IsUrl()
   url: string;
 
-  @IsUrl()
+  // @IsUrl()
   faviconUrl?: string;
 
   description?: string;

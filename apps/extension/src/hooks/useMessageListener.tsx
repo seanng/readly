@@ -43,9 +43,9 @@ export function useMessageListener() {
 
   useEffect(() => {
     function listener({ message, data }: ListenerProps) {
+      console.log('Message from BG received in Popup: ', message);
       if (message === 'LINK_POST_SUCCESS') linkPostSuccess(data);
       if (message === 'COLLECTION_POST_SUCCESS') collectionPostSuccess(data);
-      if (message === 'USER_SIGNOUT_SUCCESS') signoutSuccess();
       if (message === 'COLLECTIONS_UPDATE_RECEIVED')
         collectionsUpdateReceived(data);
     }

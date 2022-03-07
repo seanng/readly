@@ -49,6 +49,7 @@ export async function requestCollectionJoin(cb: () => void) {
   cb();
 }
 
+// EVENT-RECEIVERS
 export async function receiveCollectionJoin(
   data: {
     user: {
@@ -60,11 +61,39 @@ export async function receiveCollectionJoin(
   },
   port: chrome.runtime.Port
 ) {
-  const { collections } = await chrome.storage.local.get(['collections']);
+  const { collections, user } = await chrome.storage.local.get([
+    'collections',
+    'user',
+  ]);
+  if (user.id === data.user.id) return;
   const idx = collections.findIndex(
     (c: Collection) => c.id === data.collectionId
   );
   collections[idx].participants.push(data.user);
+  updateCache({ collections });
+  port.postMessage({
+    message: 'COLLECTIONS_UPDATE_RECEIVED',
+    data: { collections },
+  });
+}
+
+export async function receiveCollectionUpdate(
+  payload: {
+    collectionId: string;
+    data: { name: string };
+    userId: string;
+  },
+  port: chrome.runtime.Port
+) {
+  const { collections, user } = await chrome.storage.local.get([
+    'collections',
+    'user',
+  ]);
+  if (user.id === payload.userId) return;
+  const idx = collections.findIndex(
+    (c: Collection) => c.id === payload.collectionId
+  );
+  collections[idx] = { ...collections[idx], ...payload.data };
   updateCache({ collections });
   port.postMessage({
     message: 'COLLECTIONS_UPDATE_RECEIVED',

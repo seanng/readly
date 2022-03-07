@@ -22,6 +22,14 @@ export class LinksService {
             [userId]: { hasReadIt: false },
           },
         },
+        select: {
+          id: true,
+          url: true,
+          description: true,
+          title: true,
+          faviconUrl: true,
+          readerInfo: true,
+        },
       });
       return link;
     } catch (error) {
@@ -53,7 +61,12 @@ export class LinksService {
 
   delete(id: string) {
     try {
-      return this.prismaService.link.delete({ where: { id } });
+      return this.prismaService.link.delete({
+        where: { id },
+        select: {
+          collectionId: true,
+        },
+      });
     } catch (error) {
       console.log('error in delete link: ', error);
       throw error;
