@@ -27,7 +27,6 @@ model Collection {
 }
 
 enum CollectionRole {
-  CREATOR
   ADMIN
   MEMBER
 }

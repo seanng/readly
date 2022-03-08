@@ -54,7 +54,7 @@ async function main() {
         collections: {
           create: [
             {
-              role: 'CREATOR',
+              role: 'ADMIN',
               collection: {
                 create: {
                   name: `${u.email}'s collection`,
@@ -62,7 +62,7 @@ async function main() {
               },
             },
             {
-              role: 'CREATOR',
+              role: 'ADMIN',
               collection: {
                 create: {
                   name: `${u.email}'s 2nd collection`,

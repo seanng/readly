@@ -19,7 +19,7 @@ export class CollectionsService {
           users: {
             create: [
               {
-                role: 'CREATOR',
+                role: 'ADMIN',
                 user: { connect: { id: userId } },
               },
             ],
@@ -119,5 +119,32 @@ export class CollectionsService {
 
   async delete(id: string) {
     return this.prismaService.collection.delete({ where: { id } });
+  }
+
+  async leave(userId: string, collectionId: string) {
+    const participants = await this.prismaService.usersOnCollections.findMany({
+      where: { collectionId },
+      select: { id: true, userId: true, role: true },
+    });
+
+    const hasAdmin = participants.find((p) => {
+      return p.userId !== userId && p.role === 'ADMIN';
+    });
+
+    let chosenParticipant;
+
+    if (!hasAdmin) {
+      chosenParticipant = participants.find((p) => p.role === 'MEMBER');
+      console.log('chosenParticipant: ', chosenParticipant);
+      await this.prismaService.usersOnCollections.update({
+        where: { id: chosenParticipant.id },
+        data: { role: 'ADMIN' },
+      });
+    }
+
+    await this.prismaService.usersOnCollections.deleteMany({
+      where: { userId, collectionId },
+    });
+    return { newAdminId: chosenParticipant?.userId };
   }
 }
