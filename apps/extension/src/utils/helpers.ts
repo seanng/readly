@@ -1,4 +1,5 @@
 import { request } from 'lib/request';
+import { Socket } from 'socket.io-client';
 import { MeResponsePayload, Store } from './types';
 
 export function classNames(...classes: string[]) {
@@ -65,4 +66,13 @@ function transformMe(json: MeResponsePayload) {
 export async function fetchMyData(): Promise<Store> {
   const json = (await request('/users/me')) as MeResponsePayload;
   return transformMe(json);
+}
+
+interface Body {
+  message: string;
+  data: unknown;
+}
+
+export function emit(socket: Socket, body: Body) {
+  socket.emit('CLIENT_EMISSION', body);
 }

@@ -50,7 +50,7 @@ export class UsersService {
   async findByIdWithCollectionIds(id: string) {
     return this.prismaService.user.findUnique({
       where: { id },
-      select: { collections: { select: { collectionId: true } } },
+      select: { id: true, collections: { select: { collectionId: true } } },
     });
   }
 
