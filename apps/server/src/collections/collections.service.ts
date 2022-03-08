@@ -90,7 +90,7 @@ export class CollectionsService {
     });
   }
 
-  async findOne(collectionId: string, userId: string) {
+  async findOne(collectionId: string) {
     const collection = await this.prismaService.collection.findUnique({
       where: { id: collectionId },
       select: {
@@ -98,15 +98,14 @@ export class CollectionsService {
         name: true,
         users: {
           select: {
+            id: true,
             userId: true,
+            role: true,
           },
         },
       },
     });
     if (!collection) throw new NotFoundException();
-    if (collection.users.find((u) => u.userId === userId))
-      throw new ConflictException();
-
     return collection;
   }
 
@@ -121,30 +120,16 @@ export class CollectionsService {
     return this.prismaService.collection.delete({ where: { id } });
   }
 
-  async leave(userId: string, collectionId: string) {
-    const participants = await this.prismaService.usersOnCollections.findMany({
-      where: { collectionId },
-      select: { id: true, userId: true, role: true },
+  async updateUser(userOnCollectionId, data) {
+    this.prismaService.usersOnCollections.update({
+      where: { id: userOnCollectionId },
+      data,
     });
+  }
 
-    const hasAdmin = participants.find((p) => {
-      return p.userId !== userId && p.role === 'ADMIN';
-    });
-
-    let chosenParticipant;
-
-    if (!hasAdmin) {
-      chosenParticipant = participants.find((p) => p.role === 'MEMBER');
-      console.log('chosenParticipant: ', chosenParticipant);
-      await this.prismaService.usersOnCollections.update({
-        where: { id: chosenParticipant.id },
-        data: { role: 'ADMIN' },
-      });
-    }
-
-    await this.prismaService.usersOnCollections.deleteMany({
+  async deleteUser(userId: string, collectionId: string) {
+    return this.prismaService.usersOnCollections.deleteMany({
       where: { userId, collectionId },
     });
-    return { newAdminId: chosenParticipant?.userId };
   }
 }

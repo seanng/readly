@@ -10,7 +10,13 @@ interface HeaderProps {
   collection: Collection;
 }
 export function Header({ collection }: HeaderProps) {
-  const { browserTab, createLink, isCreatingCollection, user } = useStore();
+  const {
+    browserTab,
+    createLink,
+    isCreatingCollection,
+    removeCollectionUser,
+    user,
+  } = useStore();
 
   return (
     <div className="pl-2 pr-3 w-full pt-4">
@@ -27,6 +33,7 @@ export function Header({ collection }: HeaderProps) {
             participants={collection.participants}
             disabled={isCreatingCollection}
             collectionId={collection.id}
+            removeUser={removeCollectionUser}
           />
           {/* <AddLinkPopover /> */}
           <PrimaryButtonSmall

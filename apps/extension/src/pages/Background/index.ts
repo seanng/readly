@@ -7,7 +7,6 @@ import {
   requestCollectionDelete,
   requestLinkDelete,
   requestCollectionJoin,
-  requestCollectionLeave,
   requestCollectionUpdate,
   requestLinkUpdate,
   authenticateUser,
@@ -16,7 +15,9 @@ import {
   receiveCollectionUpdate,
   receiveLinkCreate,
   receiveLinkDelete,
-  receiveCollectionLeave,
+  receiveCollectionDelete,
+  requestCollectionUserDelete,
+  receiveCollectionUserDelete,
 } from './handlers';
 
 let token: string;
@@ -72,11 +73,12 @@ function handleConnectionEvents(
     requestCollectionCreate(req.data, port);
   if (req.message === 'P_COLLECTION_UPDATE') requestCollectionUpdate(req.data);
   if (req.message === 'P_COLLECTION_DELETE') requestCollectionDelete(req.data);
-  if (req.message === 'P_COLLECTION_LEAVE')
-    requestCollectionLeave(req.data, socket);
   if (req.message === 'P_LINK_CREATE') requestLinkCreate(req.data, port);
   if (req.message === 'P_LINK_UPDATE') requestLinkUpdate(req.data);
   if (req.message === 'P_LINK_DELETE') requestLinkDelete(req.data);
+  if (req.message === 'P_COLLECTION_USER_DELETE') {
+    requestCollectionUserDelete(req.data);
+  }
 }
 
 function handleExternalEvents(req: any, _: any, sendResponse: () => void) {
@@ -93,12 +95,17 @@ function handleExternalEvents(req: any, _: any, sendResponse: () => void) {
 function handleSocketEvents(socket: Socket, port: chrome.runtime.Port) {
   socket.on('connect_error', handleConnectionError);
   socket.on('S_NEW_JOINER', (data) => receiveCollectionJoin(data, port));
-  socket.on('S_NEW_LEAVER', (data) => receiveCollectionLeave(data, port));
   socket.on('S_COLLECTION_UPDATE', (data) =>
     receiveCollectionUpdate(data, port)
   );
+  socket.on('S_COLLECTION_DELETED', (data) =>
+    receiveCollectionDelete(data, port)
+  );
   socket.on('S_NEW_LINK', (data) => receiveLinkCreate(data, port));
   socket.on('S_DELETE_LINK', (data) => receiveLinkDelete(data, port));
+  socket.on('S_COLLECTION_USER_DELETED', (data) =>
+    receiveCollectionUserDelete(data, port)
+  );
 }
 
 function handleConnectionError() {

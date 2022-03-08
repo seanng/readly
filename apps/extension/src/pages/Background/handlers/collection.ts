@@ -1,7 +1,14 @@
 import { request } from 'lib/request';
-import { Socket } from 'socket.io-client';
 import { fetchMyData, updateCache, emit } from 'utils/helpers';
-import { Collection, Participant, Store, User } from 'utils/types';
+import { Collection, Store } from 'utils/types';
+
+interface RetUser {
+  role: string;
+  user: {
+    id: string;
+    email: string;
+  };
+}
 
 export async function requestCollectionCreate(
   { name = '' },
@@ -11,8 +18,15 @@ export async function requestCollectionCreate(
     method: 'POST',
     body: JSON.stringify({ name }),
   });
+  const participants = users.map((u: RetUser) => ({
+    role: u.role,
+    id: u.user.id,
+    email: u.user.email,
+  }));
+
   const transformed = {
-    participants: users,
+    participants,
+    role: 'ADMIN',
     ...collection,
   };
   port.postMessage({
@@ -50,21 +64,14 @@ export async function requestCollectionJoin(cb: () => void) {
   cb();
 }
 
-export async function requestCollectionLeave(
-  data: {
-    collectionId: string;
-    collections: Collection[];
-  },
-  socket: Socket
-) {
-  // emit(socket, {
-  //   message: 'B_LEAVE_COLLECTION',
-  //   data: {
-  //     collectionId: data.collectionId,
-  //   }
-  // });
-  await request(`/collections/${data.collectionId}/leave`, { method: 'POST' });
-  updateCache({ collections: data.collections });
+export function requestCollectionUserDelete(data: {
+  collectionId: string;
+  userId: string;
+}) {
+  const { collectionId, userId } = data;
+  return request(`/collections/${collectionId}/users/${userId}`, {
+    method: 'DELETE',
+  });
 }
 
 // EVENT-RECEIVERS
@@ -96,7 +103,28 @@ export async function receiveCollectionJoin(
   });
 }
 
-export async function receiveCollectionLeave(
+export async function receiveCollectionDelete(
+  data: {
+    userId: string;
+    collectionId: string;
+  },
+  port: chrome.runtime.Port
+) {
+  const { collections, user } = (await chrome.storage.local.get([
+    'collections',
+    'user',
+  ])) as Store;
+  if (user?.id === data.userId || !collections) return;
+  const idx = collections.findIndex((col) => col.id === data.collectionId);
+  collections.splice(idx, 1);
+  updateCache({ collections });
+  port.postMessage({
+    message: 'COLLECTIONS_UPDATE_RECEIVED',
+    data: { collections },
+  });
+}
+
+export async function receiveCollectionUserDelete(
   data: {
     userId: string;
     collectionId: string;
@@ -108,24 +136,31 @@ export async function receiveCollectionLeave(
     'collections',
     'user',
   ])) as Store;
-  if (user?.id === data.userId || !collections) return;
-  const idx = collections.findIndex((c) => c.id === data.collectionId);
-  const { participants } = collections[idx];
-  const participantIdx = participants.findIndex((u) => u.id === data.userId);
-  participants.splice(participantIdx, 1);
-  if (data.newAdminId) {
-    const newAdmin = participants.find((p) => p.id === data.newAdminId) ?? {
-      role: '',
-    };
-    if (data.newAdminId === user?.id) {
-      collections[idx].role = 'ADMIN';
+  if (!user?.id || !collections) return;
+  const newCollections = collections.slice();
+  const idx = newCollections.findIndex((c) => c.id === data.collectionId);
+
+  if (user.id === data.userId) {
+    newCollections.splice(idx, 1);
+  } else {
+    const { participants } = newCollections[idx];
+    const participantIdx = participants.findIndex((u) => u.id === data.userId);
+    participants.splice(participantIdx, 1);
+    if (data.newAdminId) {
+      const newAdmin = participants.find((p) => p.id === data.newAdminId) ?? {
+        role: '',
+      };
+      if (data.newAdminId === user?.id) {
+        newCollections[idx].role = 'ADMIN';
+      }
+      newAdmin.role = 'ADMIN';
     }
-    newAdmin.role = 'ADMIN';
   }
-  updateCache({ collections });
+
+  updateCache({ collections: newCollections });
   port.postMessage({
     message: 'COLLECTIONS_UPDATE_RECEIVED',
-    data: { collections },
+    data: { collections: newCollections },
   });
 }
 

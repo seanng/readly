@@ -103,13 +103,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    props.collectionName = data.name;
+    if (data.collection.users.find((u) => u.userId === data.userId)) {
+      props.displayMode = DisplayMode.exists;
+    }
+    props.collectionName = data.collection.name;
     return { props };
   } catch (error) {
-    if (error.response?.status === 409) {
-      props.displayMode = DisplayMode.exists;
-      return { props };
-    }
     props.success = false;
     return { props };
   }

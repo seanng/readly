@@ -11,6 +11,7 @@ interface Props {
   user: User | undefined;
   disabled: boolean;
   collectionId: string;
+  removeUser: (uid: string, cid: string) => void;
 }
 
 const MEMBER = 'MEMBER';
@@ -20,21 +21,25 @@ export function InvitePopover({
   user,
   disabled,
   collectionId,
+  removeUser,
 }: Props) {
   const [role, setRole] = useState('');
   const [copied, setCopied] = useState(false);
+
   const members = useMemo(() => {
     if (!user?.id) return participants;
     // reorder participants so you are first.
     const retVal = participants.slice();
     const myIdx = retVal.findIndex((e) => e.id === user.id);
     const [me] = retVal.splice(myIdx, 1);
-    setRole('');
+    setRole(me.role);
     retVal.unshift(me);
     return retVal;
   }, [participants]);
 
-  function handleRemoveClick() {}
+  const handleRemoveClick = (userId: string) => () => {
+    removeUser(collectionId, userId);
+  };
 
   function handleCopyClick() {
     setCopied(true);
@@ -73,7 +78,7 @@ export function InvitePopover({
                 <a
                   href="#"
                   className="text-red-500 font-medium"
-                  onClick={handleRemoveClick}
+                  onClick={handleRemoveClick(member.id)}
                 >
                   Remove
                 </a>

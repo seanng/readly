@@ -26,7 +26,7 @@ export const ContextMenuProvider: FC = ({ children }) => {
   const [collectionIdx, setCollectionIdx] = useState(-1);
   const [isRenaming, setIsRenaming] = useState(false);
   const { setOnModalConfirm, setOpen } = useModal();
-  const { deleteCollection, leaveCollection } = useStore();
+  const { deleteCollection, collections, removeCollectionUser } = useStore();
 
   const handleDeleteClick = (event: ClickEvent) => {
     setOnModalConfirm(() => () => deleteCollection(collectionIdx));
@@ -38,7 +38,8 @@ export const ContextMenuProvider: FC = ({ children }) => {
   };
 
   const handleLeaveClick = () => {
-    leaveCollection(collectionIdx);
+    const collection = collections[collectionIdx];
+    removeCollectionUser(collection.id);
   };
 
   return (

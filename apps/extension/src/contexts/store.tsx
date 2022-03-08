@@ -20,7 +20,7 @@ interface ContextState {
   deleteLink: (i: number) => void;
   isCreatingCollection: boolean;
   isLoading: boolean;
-  leaveCollection: (idx: number) => void;
+  removeCollectionUser: (cid: string, uid?: string) => void;
   selectCollection: (i: number) => void;
   setActiveIdx: (n: number) => void;
   setBrowserTab: (tab: chrome.tabs.Tab) => void;
@@ -112,11 +112,24 @@ export const StoreProvider = ({ ...props }) => {
     return { collections: c, collectionId };
   }
 
-  function leaveCollection(idx: number) {
-    const data = removeCollection(idx);
+  function removeCollectionUser(collectionId: string, uid?: string) {
+    const userId = uid || user?.id;
+    if (!collectionId || !userId) return;
+    if (user?.id === userId) {
+      // For snappy UI.
+      setCollections((col) => {
+        const c = col.slice();
+        const idx = col.findIndex((item) => item.id === collectionId);
+        c.splice(idx, 1);
+        return c;
+      });
+    }
     port?.postMessage({
-      message: 'P_COLLECTION_LEAVE',
-      data,
+      message: 'P_COLLECTION_USER_DELETE',
+      data: {
+        collectionId,
+        userId,
+      },
     });
   }
 
@@ -186,7 +199,7 @@ export const StoreProvider = ({ ...props }) => {
         deleteLink,
         isCreatingCollection,
         isLoading,
-        leaveCollection,
+        removeCollectionUser,
         selectCollection,
         setActiveIdx,
         setBrowserTab,

@@ -65,29 +65,61 @@ export class CollectionsController {
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  findOne(@Request() req, @Param() params: IDParams) {
+  async findOne(@Request() req, @Param() params: IDParams) {
     const { userId } = req.user;
-    return this.collectionsService.findOne(params.id, userId);
+    const collection = await this.collectionsService.findOne(params.id);
+    return { collection, userId };
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  delete(@Param() params: IDParams) {
-    return this.collectionsService.delete(params.id);
+  async delete(@Request() req, @Param() params: IDParams) {
+    const { userId } = req.user;
+    const result = await this.collectionsService.delete(params.id);
+    this.socketsService.socket.to(params.id).emit('S_COLLECTION_DELETED', {
+      userId,
+      collectionId: params.id,
+    });
+    return result;
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post(':id/leave')
-  async leave(@Request() req, @Param() params: IDParams) {
+  @Delete(':collectionId/users/:targetUserId')
+  async deleteUser(
+    @Request() req,
+    @Param() params: { collectionId: string; targetUserId: string },
+  ) {
     const { userId } = req.user;
-    const { newAdminId } = await this.collectionsService.leave(
-      userId,
-      params.id,
+    const { collectionId, targetUserId } = params;
+    let newAdminId;
+
+    // Leave own collection
+    if (userId === targetUserId) {
+      const collection = await this.collectionsService.findOne(collectionId);
+      const hasAdmin = collection.users.find((p) => {
+        return p.userId !== userId && p.role === 'ADMIN';
+      });
+
+      if (!hasAdmin) {
+        const newAdmin = collection.users.find((p) => p.role === 'MEMBER');
+        await this.collectionsService.updateUser(newAdmin.id, {
+          role: 'ADMIN',
+        });
+        newAdminId = newAdmin.userId;
+      }
+    }
+
+    const result = await this.collectionsService.deleteUser(
+      targetUserId,
+      collectionId,
     );
-    this.socketsService.socket.to(params.id).emit('S_NEW_LEAVER', {
-      userId,
-      collectionId: params.id,
-      newAdminId,
-    });
+    this.socketsService.socket
+      .to(collectionId)
+      .emit('S_COLLECTION_USER_DELETED', {
+        userId: targetUserId,
+        collectionId,
+        newAdminId,
+      });
+    return result;
   }
 }
