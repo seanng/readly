@@ -14,7 +14,7 @@ const ModalContext = createContext({} as ContextState);
 const INITIAL_HEADING = 'Are you sure?';
 const INITIAL_ACTION_TEXT = 'Remove';
 const INITIAL_BODY =
-  'Are you sure you want to delete this collection? All links within this collection will also be removed.';
+  'Are you sure you want to delete this collection? Once deleted, this collection will no longer be available for all members. All links within this collection will also be removed.';
 
 export const ModalProvider: FC = ({ children }) => {
   const [open, setOpen] = useState(false);

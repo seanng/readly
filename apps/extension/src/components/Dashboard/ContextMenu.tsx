@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ControlledMenu,
   MenuItem,
@@ -6,10 +6,13 @@ import {
   ClickEvent,
 } from '@szhsin/react-menu';
 import '@szhsin/react-menu/dist/index.css';
+import { useStore } from 'contexts/store';
 
 interface ContextMenuProps extends ControlledMenuProps {
   onRenameClick: (e: ClickEvent) => void;
-  onRemoveClick: (e: ClickEvent) => void;
+  onDeleteClick: (e: ClickEvent) => void;
+  onLeaveClick: (e: ClickEvent) => void;
+  collectionIdx: number;
   anchorPoint: {
     x: number;
     y: number;
@@ -18,13 +21,29 @@ interface ContextMenuProps extends ControlledMenuProps {
 
 export function ContextMenu({
   onRenameClick,
-  onRemoveClick,
+  onDeleteClick,
+  onLeaveClick,
+  collectionIdx,
   ...props
 }: ContextMenuProps) {
+  const [role, setRole] = useState('MEMBER');
+  const [hasMultipleParticipants, setHasMultipleParticipants] = useState(false);
+  const { user, collections } = useStore();
+
+  useEffect(() => {
+    if (collectionIdx === -1 || !user) return;
+    const collection = collections[collectionIdx];
+    setHasMultipleParticipants(collection.participants.length > 1);
+    setRole(collection.role);
+  }, [collectionIdx]);
+
   return (
     <ControlledMenu {...props}>
       <MenuItem onClick={onRenameClick}>Rename</MenuItem>
-      <MenuItem onClick={onRemoveClick}>Remove</MenuItem>
+      {hasMultipleParticipants && (
+        <MenuItem onClick={onLeaveClick}>Leave</MenuItem>
+      )}
+      {role === 'ADMIN' && <MenuItem onClick={onDeleteClick}>Delete</MenuItem>}
     </ControlledMenu>
   );
 }

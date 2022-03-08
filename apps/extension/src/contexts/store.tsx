@@ -20,6 +20,7 @@ interface ContextState {
   deleteLink: (i: number) => void;
   isCreatingCollection: boolean;
   isLoading: boolean;
+  leaveCollection: (idx: number) => void;
   selectCollection: (i: number) => void;
   setActiveIdx: (n: number) => void;
   setBrowserTab: (tab: chrome.tabs.Tab) => void;
@@ -67,13 +68,13 @@ export const StoreProvider = ({ ...props }) => {
         {
           id: Date.now().toString() ?? '',
           name,
-          role: 'CREATOR',
+          role: 'ADMIN',
           links: [],
           participants: [
             {
               id: user?.id ?? '',
               email: user?.email ?? '',
-              role: 'CREATOR',
+              role: 'ADMIN',
             },
           ],
         },
@@ -103,14 +104,27 @@ export const StoreProvider = ({ ...props }) => {
     });
   }
 
-  function deleteCollection(idx: number) {
+  function removeCollection(idx: number) {
     const c = collections.slice();
     const collectionId = c[idx].id;
     c.splice(idx, 1);
     setCollections(c);
+    return { collections: c, collectionId };
+  }
+
+  function leaveCollection(idx: number) {
+    const data = removeCollection(idx);
+    port?.postMessage({
+      message: 'P_COLLECTION_LEAVE',
+      data,
+    });
+  }
+
+  function deleteCollection(idx: number) {
+    const data = removeCollection(idx);
     port?.postMessage({
       message: 'P_COLLECTION_DELETE',
-      data: { collectionId, collections: c },
+      data,
     });
   }
 
@@ -172,6 +186,7 @@ export const StoreProvider = ({ ...props }) => {
         deleteLink,
         isCreatingCollection,
         isLoading,
+        leaveCollection,
         selectCollection,
         setActiveIdx,
         setBrowserTab,

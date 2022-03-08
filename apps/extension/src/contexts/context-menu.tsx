@@ -26,15 +26,19 @@ export const ContextMenuProvider: FC = ({ children }) => {
   const [collectionIdx, setCollectionIdx] = useState(-1);
   const [isRenaming, setIsRenaming] = useState(false);
   const { setOnModalConfirm, setOpen } = useModal();
-  const { deleteCollection } = useStore();
+  const { deleteCollection, leaveCollection } = useStore();
 
-  const handleRemoveClick = (event: ClickEvent) => {
+  const handleDeleteClick = (event: ClickEvent) => {
     setOnModalConfirm(() => () => deleteCollection(collectionIdx));
     setOpen(true);
   };
 
   const handleRenameClick = (event: ClickEvent) => {
     setIsRenaming(true);
+  };
+
+  const handleLeaveClick = () => {
+    leaveCollection(collectionIdx);
   };
 
   return (
@@ -52,10 +56,12 @@ export const ContextMenuProvider: FC = ({ children }) => {
       {/* TODO: this should be a proxy (changeable). */}
       <ContextMenu
         {...menuProps}
+        collectionIdx={collectionIdx}
         anchorPoint={anchorPoint}
         onClose={() => toggleMenu(false)}
-        onRemoveClick={handleRemoveClick}
+        onDeleteClick={handleDeleteClick}
         onRenameClick={handleRenameClick}
+        onLeaveClick={handleLeaveClick}
       />
     </ContextMenuContext.Provider>
   );
