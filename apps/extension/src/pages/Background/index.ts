@@ -50,9 +50,6 @@ chrome.runtime.onConnect.addListener(async (port) => {
   });
 
   handleSocketEvents(socket, port);
-  port.postMessage({
-    message: 'onConnect invoked.',
-  });
 
   port.onMessage.addListener((req) =>
     handleConnectionEvents(req, port, socket)

@@ -1,7 +1,7 @@
 import { useStore } from 'contexts/store';
 import { useConnection } from 'contexts/connection';
 import { useEffect } from 'react';
-import { Collection, Link, Participant } from 'utils/types';
+import { Collection, Link } from 'utils/types';
 
 interface ListenerProps {
   message: string;
@@ -36,21 +36,14 @@ export function useMessageListener() {
     setCollections(data.collections);
   }
 
-  function signoutSuccess() {
-    console.log('signoutSuccess: ', signoutSuccess);
-    window.location.href = 'popup_unauth.html';
-  }
-
   useEffect(() => {
     function listener({ message, data }: ListenerProps) {
-      console.log('Message from BG received in Popup: ', message);
       if (message === 'LINK_POST_SUCCESS') linkPostSuccess(data);
       if (message === 'COLLECTION_POST_SUCCESS') collectionPostSuccess(data);
       if (message === 'COLLECTIONS_UPDATE_RECEIVED')
         collectionsUpdateReceived(data);
     }
-
     port?.onMessage.addListener(listener);
     return () => port?.onMessage.removeListener(listener);
-  }, [activeIdx]);
+  }, [activeIdx, port]);
 }
