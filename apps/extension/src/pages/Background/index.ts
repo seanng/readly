@@ -7,6 +7,7 @@ import {
   requestCollectionDelete,
   requestLinkDelete,
   requestCollectionJoin,
+  requestCollectionLeave,
   requestCollectionUpdate,
   requestLinkUpdate,
   authenticateUser,
@@ -15,6 +16,7 @@ import {
   receiveCollectionUpdate,
   receiveLinkCreate,
   receiveLinkDelete,
+  receiveCollectionLeave,
 } from './handlers';
 
 let token: string;
@@ -52,7 +54,9 @@ chrome.runtime.onConnect.addListener(async (port) => {
     message: 'onConnect invoked.',
   });
 
-  port.onMessage.addListener((req) => handleConnectionEvents(req, port));
+  port.onMessage.addListener((req) =>
+    handleConnectionEvents(req, port, socket)
+  );
   port.onDisconnect.addListener((port) => handlePopupDisconnect(port, socket));
 });
 
@@ -62,11 +66,17 @@ function handlePopupDisconnect(port: chrome.runtime.Port, socket: Socket) {
 
 // EVENT HANDLERS
 
-function handleConnectionEvents(req: any, port: chrome.runtime.Port) {
+function handleConnectionEvents(
+  req: any,
+  port: chrome.runtime.Port,
+  socket: Socket
+) {
   if (req.message === 'P_COLLECTION_CREATE')
     requestCollectionCreate(req.data, port);
   if (req.message === 'P_COLLECTION_UPDATE') requestCollectionUpdate(req.data);
   if (req.message === 'P_COLLECTION_DELETE') requestCollectionDelete(req.data);
+  if (req.message === 'P_COLLECTION_LEAVE')
+    requestCollectionLeave(req.data, socket);
   if (req.message === 'P_LINK_CREATE') requestLinkCreate(req.data, port);
   if (req.message === 'P_LINK_UPDATE') requestLinkUpdate(req.data);
   if (req.message === 'P_LINK_DELETE') requestLinkDelete(req.data);
@@ -86,6 +96,7 @@ function handleExternalEvents(req: any, _: any, sendResponse: () => void) {
 function handleSocketEvents(socket: Socket, port: chrome.runtime.Port) {
   socket.on('connect_error', handleConnectionError);
   socket.on('S_NEW_JOINER', (data) => receiveCollectionJoin(data, port));
+  socket.on('S_NEW_LEAVER', (data) => receiveCollectionLeave(data, port));
   socket.on('S_COLLECTION_UPDATE', (data) =>
     receiveCollectionUpdate(data, port)
   );

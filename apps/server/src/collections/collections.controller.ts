@@ -75,4 +75,19 @@ export class CollectionsController {
   delete(@Param() params: IDParams) {
     return this.collectionsService.delete(params.id);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/leave')
+  async leave(@Request() req, @Param() params: IDParams) {
+    const { userId } = req.user;
+    const { newAdminId } = await this.collectionsService.leave(
+      userId,
+      params.id,
+    );
+    this.socketsService.socket.to(params.id).emit('S_NEW_LEAVER', {
+      userId,
+      collectionId: params.id,
+      newAdminId,
+    });
+  }
 }
