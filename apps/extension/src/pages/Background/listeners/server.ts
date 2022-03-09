@@ -1,80 +1,36 @@
-import { request } from 'lib/request';
-import { fetchMyData, updateCache, emit } from 'utils/helpers';
-import { Collection, Store } from 'utils/types';
+import { Socket } from 'socket.io-client';
+import { updateCache } from 'utils/helpers';
+import { Collection, Link, Store } from 'utils/types';
 
-interface RetUser {
-  role: string;
-  user: {
-    id: string;
-    email: string;
-  };
-}
-
-export async function requestCollectionCreate(
-  { name = '' },
+export function serverEventsListener(
+  socket: Socket,
   port: chrome.runtime.Port
 ) {
-  const { users, ...collection } = await request('/collections', {
-    method: 'POST',
-    body: JSON.stringify({ name }),
+  socket.on('connect_error', () => {
+    console.log('connect_error');
   });
-  const participants = users.map((u: RetUser) => ({
-    role: u.role,
-    id: u.user.id,
-    email: u.user.email,
-  }));
-
-  const transformed = {
-    participants,
-    role: 'ADMIN',
-    ...collection,
-  };
-  port.postMessage({
-    message: 'COLLECTION_POST_SUCCESS',
-    data: transformed,
+  socket.on('S_NEW_JOINER', (data) => {
+    receiveCollectionJoin(data, port);
   });
-  // update cache from popup instead of here.
-  chrome.storage.local.get(['collections'], ({ collections }) => {
-    collections.push(transformed);
-    updateCache({ collections });
+  socket.on('S_COLLECTION_CREATED', (data) => {
+    receiveCollectionCreated(data, port);
   });
-}
-
-export async function requestCollectionUpdate(data: {
-  collectionId: string;
-  collections: Collection[];
-  body: Partial<Collection>;
-}) {
-  const path = `/collections/${data.collectionId}`;
-  await request(path, { method: 'PATCH', body: JSON.stringify(data.body) });
-  updateCache({ collections: data.collections });
-}
-
-export async function requestCollectionDelete(data: {
-  collectionId: string;
-  collections: Collection[];
-}) {
-  await request(`/collections/${data.collectionId}`, { method: 'DELETE' });
-  updateCache({ collections: data.collections });
-}
-
-export async function requestCollectionJoin(cb: () => void) {
-  const myDeets = await fetchMyData();
-  await updateCache(myDeets);
-  cb();
-}
-
-export function requestCollectionUserDelete(data: {
-  collectionId: string;
-  userId: string;
-}) {
-  const { collectionId, userId } = data;
-  return request(`/collections/${collectionId}/users/${userId}`, {
-    method: 'DELETE',
+  socket.on('S_COLLECTION_UPDATE', (data) => {
+    receiveCollectionUpdate(data, port);
+  });
+  socket.on('S_COLLECTION_DELETED', (data) => {
+    receiveCollectionDelete(data, port);
+  });
+  socket.on('S_NEW_LINK', (data) => {
+    receiveLinkCreate(data, port);
+  });
+  socket.on('S_DELETE_LINK', (data) => {
+    receiveLinkDelete(data, port);
+  });
+  socket.on('S_COLLECTION_USER_DELETED', (data) => {
+    receiveCollectionUserDelete(data, port);
   });
 }
-
-// EVENT-RECEIVERS
 export async function receiveCollectionJoin(
   data: {
     user: {
@@ -94,12 +50,47 @@ export async function receiveCollectionJoin(
   const idx = collections.findIndex(
     (c: Collection) => c.id === data.collectionId
   );
+  console.log('collection join received.');
   if (idx === -1) return; // if user already left collection (but still connected to socket)
   collections[idx].participants.push(data.user);
   updateCache({ collections });
   port.postMessage({
     message: 'COLLECTIONS_UPDATE_RECEIVED',
     data: { collections },
+  });
+}
+
+interface RetUser {
+  role: string;
+  user: {
+    id: string;
+    email: string;
+  };
+}
+
+export async function receiveCollectionCreated(
+  data: {
+    users: RetUser[];
+  },
+  port: chrome.runtime.Port
+) {
+  const { users, ...collection } = data;
+  const participants = users.map((u) => ({
+    role: u.role,
+    id: u.user.id,
+    email: u.user.email,
+  }));
+
+  const transformed = { participants, role: 'ADMIN', ...collection };
+
+  port.postMessage({
+    message: 'COLLECTION_POST_SUCCESS',
+    data: transformed,
+  });
+
+  chrome.storage.local.get(['collections'], ({ collections }) => {
+    collections.push(transformed);
+    updateCache({ collections });
   });
 }
 
@@ -182,6 +173,56 @@ export async function receiveCollectionUpdate(
   );
   if (idx === -1) return; // if user already left collection (but still connected to socket)
   collections[idx] = { ...collections[idx], ...payload.data };
+  updateCache({ collections });
+  port.postMessage({
+    message: 'COLLECTIONS_UPDATE_RECEIVED',
+    data: { collections },
+  });
+}
+export async function receiveLinkCreate(
+  payload: {
+    userId: string;
+    collectionId: string;
+    link: Link;
+  },
+  port: chrome.runtime.Port
+) {
+  const { collections, user } = (await chrome.storage.local.get([
+    'collections',
+    'user',
+  ])) as Store;
+  if (!collections || user?.id === payload.userId) return;
+  const idx = collections.findIndex(
+    (c: Collection) => c.id === payload.collectionId
+  );
+  collections[idx].links.push(payload.link);
+  updateCache({ collections });
+  port.postMessage({
+    message: 'COLLECTIONS_UPDATE_RECEIVED',
+    data: { collections },
+  });
+}
+
+export async function receiveLinkDelete(
+  payload: {
+    userId: string;
+    collectionId: string;
+    linkId: string;
+  },
+  port: chrome.runtime.Port
+) {
+  const { collections, user } = (await chrome.storage.local.get([
+    'collections',
+    'user',
+  ])) as Store;
+  if (!collections || user?.id === payload.userId) return;
+  const colIdx = collections.findIndex(
+    (c: Collection) => c.id === payload.collectionId
+  );
+  const linkIdx = collections[colIdx].links.findIndex(
+    (link) => link.id === payload.linkId
+  );
+  collections[colIdx].links.splice(linkIdx, 1);
   updateCache({ collections });
   port.postMessage({
     message: 'COLLECTIONS_UPDATE_RECEIVED',

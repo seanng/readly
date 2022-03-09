@@ -1,5 +1,32 @@
 import secrets from 'secrets';
-import { fetchMyData, updateCache } from 'utils/helpers';
+import { fetchMyData, getStorageItems, updateCache } from 'utils/helpers';
+
+export function externalEventsListener(
+  req: any,
+  _: any,
+  sendResponse: () => void,
+  onUserAuth: (f: any) => Promise<void>
+) {
+  switch (req.message) {
+    case 'W_USER_AUTHENTICATE':
+      authenticateUser(req.data, () => onUserAuth(sendResponse));
+      break;
+    case 'W_COLLECTION_JOIN':
+      requestCollectionJoin(sendResponse);
+      break;
+    case 'SIGNOUT':
+      requestUserSignout(sendResponse);
+      break;
+    default:
+      break;
+  }
+}
+
+export async function requestCollectionJoin(cb: () => void) {
+  const myDeets = await fetchMyData();
+  await updateCache(myDeets);
+  cb();
+}
 
 export async function authenticateUser(
   { token }: { token: string },

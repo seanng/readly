@@ -12,12 +12,8 @@ import { Logger } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { AuthService } from '../auth/auth.service';
 import { SocketsService } from './sockets.service';
-// import { CollectionsService } from 'src/collections/collections.service';
-
-interface Body {
-  message: string;
-  data: unknown;
-}
+import { CollectionsService } from 'src/collections/collections.service';
+import { CreateCollectionDto } from 'src/collections/dto/create-collection.dto';
 
 @WebSocketGateway({
   cors: {
@@ -31,6 +27,7 @@ export class SocketsGateway
   constructor(
     private authService: AuthService,
     private socketsService: SocketsService, // private collectionsService: CollectionsService,
+    private collectionsService: CollectionsService,
   ) {}
 
   private logger: Logger = new Logger('SocketsGateway');
@@ -58,17 +55,14 @@ export class SocketsGateway
     }
   }
 
-  @SubscribeMessage('CLIENT_EMISSION')
-  async handleMessage(
+  @SubscribeMessage('B_COLLECTION_CREATE')
+  async onCollectionCreate(
     @ConnectedSocket() client: Socket,
-    @MessageBody() body: Body,
+    @MessageBody() body: CreateCollectionDto,
   ) {
-    const { message, data } = body;
-    // const { userId } = client.data;
-    // if (message === 'B_LEAVE_COLLECTION') {
-    //   await this.collectionsService;
-    // }
-    // console.log('heard in backend.', data);
-    // client.leave()
+    const { userId } = client.data;
+    const collection = await this.collectionsService.create(userId, body);
+    client.join(collection.id);
+    client.emit('S_COLLECTION_CREATED', collection);
   }
 }

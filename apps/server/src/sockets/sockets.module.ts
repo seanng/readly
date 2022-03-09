@@ -1,10 +1,13 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { AuthModule } from 'src/auth/auth.module';
+import { CollectionsModule as InitialCollectionsModule } from 'src/collections/collections.module';
 import { SocketsGateway } from './sockets.gateway';
 import { SocketsService } from './sockets.service';
 
+const CollectionsModule = forwardRef(() => InitialCollectionsModule);
+
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, CollectionsModule],
   providers: [SocketsGateway, SocketsService],
   exports: [SocketsGateway, SocketsService],
 })
