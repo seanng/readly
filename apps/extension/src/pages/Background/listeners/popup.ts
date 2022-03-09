@@ -19,6 +19,9 @@ export function popupEventsListener(
       requestCollectionDelete(req.data);
       break;
     case 'P_LINK_CREATE':
+      requestLinkCreate(req.data, port);
+      break;
+    case 'P_LINK_UPDATE':
       requestLinkUpdate(req.data);
       break;
     case 'P_LINK_DELETE':
