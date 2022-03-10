@@ -39,7 +39,7 @@ export function ContextMenu({
 
   return (
     <ControlledMenu {...props}>
-      <MenuItem onClick={onRenameClick}>Rename</MenuItem>
+      {role === 'ADMIN' && <MenuItem onClick={onRenameClick}>Rename</MenuItem>}
       {hasMultipleParticipants && (
         <MenuItem onClick={onLeaveClick}>Leave</MenuItem>
       )}

@@ -68,11 +68,17 @@ export async function fetchMyData(): Promise<Store> {
   return transformMe(json);
 }
 
-interface Body {
-  message: string;
-  data: unknown;
-}
+export const debounce = (func: (...a: any[]) => void, wait: number) => {
+  let timeout: NodeJS.Timeout;
 
-export function emit(socket: Socket, body: Body) {
-  socket.emit('CLIENT_EMISSION', body);
-}
+  return function executedFunction(...args: any[]) {
+    const later = () => {
+      console.log('executing now.');
+      clearTimeout(timeout);
+      func(...args);
+    };
+
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+};

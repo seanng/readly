@@ -1,6 +1,6 @@
 import { request } from 'lib/request';
 import { Socket } from 'socket.io-client';
-import { fetchMyData, updateCache, emit } from 'utils/helpers';
+import { fetchMyData, updateCache } from 'utils/helpers';
 import { Collection, CreateLinkPayload, Link, Store } from 'utils/types';
 
 export function popupEventsListener(

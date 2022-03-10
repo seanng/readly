@@ -3,9 +3,11 @@ import { Link, Participant, ReaderInfoValue } from 'utils/types';
 import {
   LinkIcon,
   CheckCircleIcon,
+  ReplyIcon,
   PencilIcon,
   TrashIcon,
 } from '@heroicons/react/solid';
+import { debounce } from 'utils/helpers';
 
 interface ReadStatusProps {
   readers: ReaderInfoValue[];
@@ -18,7 +20,7 @@ interface LinkItemProps {
   idx: number;
   participants: Participant[];
   onEditClick: (idx: number) => (e: SyntheticEvent) => void;
-  onCheckClick: (idx: number) => (e: SyntheticEvent) => void;
+  onCheckClick: (idx: number) => void;
   onDeleteClick: (idx: number) => (e: SyntheticEvent) => void;
 }
 
@@ -56,6 +58,14 @@ export function LinkItem({
   const isReadByUser = link.readerInfo[userId ?? '']?.hasReadIt;
   const readers = Object.values(link.readerInfo);
 
+  const debouncedCheckClick = debounce(() => onCheckClick(idx), 500);
+
+  const handleCheckClick = (e: SyntheticEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    debouncedCheckClick();
+  };
+
   return (
     <div className="flex group bg-white rounded-md p-4 hover:outline outline-2 outline-gray-300 relative">
       {link.faviconUrl ? (
@@ -78,14 +88,16 @@ export function LinkItem({
       </div>
       {/* Action Buttons */}
       <div className="hidden absolute group-hover:flex right-3 bottom-3 space-x-2">
-        {!isReadByUser && (
-          <button
-            className="border-gray-300 rounded-full border p-1"
-            onClick={onCheckClick(idx)}
-          >
+        <button
+          className="border-gray-300 rounded-full border p-1"
+          onClick={handleCheckClick}
+        >
+          {isReadByUser ? (
+            <ReplyIcon className="h-4 w-auto text-yellow-500 " />
+          ) : (
             <CheckCircleIcon className="h-4 w-auto text-green-500 " />
-          </button>
-        )}
+          )}
+        </button>
         {/* <button
                 className="border-gray-300 rounded-full border p-1"
                 onClick={onEditClick(idx)}

@@ -17,10 +17,7 @@ export function Body({ collection }: { collection: Collection }) {
     e.stopPropagation();
   };
 
-  const handleCheckClick = (linkIdx: number) => (e: SyntheticEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
+  const handleCheckClick = (linkIdx: number) => {
     if (!user?.id) return;
 
     const { readerInfo } = collection.links[linkIdx];
