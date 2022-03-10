@@ -1,5 +1,5 @@
 import React, { SyntheticEvent } from 'react';
-import { Link, ReaderInfoValue } from 'utils/types';
+import { Link, Participant, ReaderInfoValue } from 'utils/types';
 import {
   LinkIcon,
   CheckCircleIcon,
@@ -9,36 +9,39 @@ import {
 
 interface ReadStatusProps {
   readers: ReaderInfoValue[];
-}
-
-function ReadStatus({ readers }: ReadStatusProps) {
-  const readerCount = readers.reduce((prev, curr) => {
-    return curr.hasReadIt ? prev + 1 : prev;
-  }, 0);
-  const isReadByAll = readers.length === readerCount;
-
-  if (isReadByAll) {
-    return (
-      <>
-        <span>{`Read${readers.length === 1 ? '' : ' by all'}`}</span>
-        <CheckCircleIcon className="h-3 w-auto text-green-500 " />
-      </>
-    );
-  }
-  if (readerCount === 0) {
-    return <span className="text-blue-700">Unread</span>;
-  }
-
-  return <span>{`Read by ${readerCount}`}</span>;
+  participants: Participant[];
 }
 
 interface LinkItemProps {
   userId?: string;
   link: Link;
   idx: number;
+  participants: Participant[];
   onEditClick: (idx: number) => (e: SyntheticEvent) => void;
   onCheckClick: (idx: number) => (e: SyntheticEvent) => void;
   onDeleteClick: (idx: number) => (e: SyntheticEvent) => void;
+}
+
+function ReadStatus({ readers, participants }: ReadStatusProps) {
+  const readerCount = readers.reduce((prev, curr) => {
+    return curr.hasReadIt ? prev + 1 : prev;
+  }, 0);
+  const isReadByAll = readerCount === participants.length;
+
+  if (isReadByAll) {
+    return (
+      <>
+        <span>{`Read${participants.length === 1 ? '' : ' by all'}`}</span>
+        <CheckCircleIcon className="h-3 w-auto text-green-500 " />
+      </>
+    );
+  }
+
+  return readerCount === 0 ? (
+    <span className="text-blue-700">Unread</span>
+  ) : (
+    <span>{`Read by ${readerCount}`}</span>
+  );
 }
 
 export function LinkItem({
@@ -48,6 +51,7 @@ export function LinkItem({
   userId,
   onCheckClick,
   onDeleteClick,
+  participants,
 }: LinkItemProps) {
   const isReadByUser = link.readerInfo[userId ?? '']?.hasReadIt;
   const readers = Object.values(link.readerInfo);
@@ -69,7 +73,7 @@ export function LinkItem({
           <span>•</span>
           <span>Added today</span>
           <span>•</span>
-          <ReadStatus readers={readers} />
+          <ReadStatus participants={participants} readers={readers} />
         </div>
       </div>
       {/* Action Buttons */}

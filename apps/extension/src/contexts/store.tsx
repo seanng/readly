@@ -170,7 +170,6 @@ export const StoreProvider = ({ ...props }) => {
       message: 'P_LINK_UPDATE',
       data: {
         linkId,
-        collections: c,
         body: data,
       },
     });
@@ -183,7 +182,7 @@ export const StoreProvider = ({ ...props }) => {
     setCollections(c);
     port?.postMessage({
       message: 'P_LINK_DELETE',
-      data: { linkId, collections: c },
+      data: { linkId },
     });
   }
 

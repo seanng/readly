@@ -14,6 +14,8 @@ import { AuthService } from '../auth/auth.service';
 import { SocketsService } from './sockets.service';
 import { CollectionsService } from 'src/collections/collections.service';
 import { CreateCollectionDto } from 'src/collections/dto/create-collection.dto';
+import { LinksService } from 'src/links/links.service';
+import { UpdateLinkDto } from 'src/links/dto/update-link.dto';
 
 @WebSocketGateway({
   cors: {
@@ -28,6 +30,7 @@ export class SocketsGateway
     private authService: AuthService,
     private socketsService: SocketsService, // private collectionsService: CollectionsService,
     private collectionsService: CollectionsService,
+    private linksService: LinksService,
   ) {}
 
   private logger: Logger = new Logger('SocketsGateway');
@@ -64,5 +67,29 @@ export class SocketsGateway
     const collection = await this.collectionsService.create(userId, body);
     client.join(collection.id);
     client.emit('S_COLLECTION_CREATED', collection);
+  }
+
+  @SubscribeMessage('B_LINK_UPDATE')
+  async onLinkUpdate(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() body: { id: string; data: UpdateLinkDto },
+  ) {
+    const link = await this.linksService.update(body.id, body.data);
+    this.socketsService.socket.to(link.collectionId).emit('S_LINK_UPDATE', {
+      userId: client.data.userId,
+      data: link,
+    });
+  }
+
+  @SubscribeMessage('B_LINK_DELETE')
+  async onLinkDelete(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() body: { id: string },
+  ) {
+    const link = await this.linksService.delete(body.id);
+    this.socketsService.socket.to(link.collectionId).emit('S_LINK_DELETE', {
+      userId: client.data.userId,
+      data: link,
+    });
   }
 }

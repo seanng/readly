@@ -16,10 +16,10 @@ export function Main() {
       ) : (
         <>
           <Header collection={collection} />
-          {collection?.links?.length === 0 ? (
+          {collection.links.length === 0 ? (
             <NoLinksView />
           ) : (
-            <Body links={collection?.links} />
+            <Body collection={collection} />
           )}
         </>
       )}

@@ -18,7 +18,7 @@ import { SocketsService } from '../sockets/sockets.service';
 @Controller('links')
 export class LinksController {
   constructor(
-    private readonly service: LinksService,
+    private readonly linksService: LinksService,
     private socketsService: SocketsService,
   ) {}
 
@@ -26,7 +26,7 @@ export class LinksController {
   @Post()
   async create(@Request() req, @Body() createLinkDto: CreateLinkDto) {
     const { userId } = req.user;
-    const link = await this.service.create(userId, createLinkDto);
+    const link = await this.linksService.create(userId, createLinkDto);
     this.socketsService.socket
       .to(createLinkDto.collectionId)
       .emit('S_NEW_LINK', {
@@ -39,26 +39,36 @@ export class LinksController {
 
   @Get()
   findAll() {
-    return this.service.findAll();
+    return this.linksService.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.service.findOne(+id);
+    return this.linksService.findOne(+id);
   }
 
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateLinkDto: UpdateLinkDto) {
-    return this.service.update(id, updateLinkDto);
+  async update(
+    @Request() req,
+    @Param('id') id: string,
+    @Body() updateLinkDto: UpdateLinkDto,
+  ) {
+    const { userId } = req.user;
+    const link = await this.linksService.update(id, updateLinkDto);
+    this.socketsService.socket.to(link.collectionId).emit('S_LINK_UPDATE', {
+      userId,
+      data: link,
+    });
+    return link;
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async remove(@Request() req, @Param('id') id: string) {
     const { userId } = req.user;
-    const link = await this.service.delete(id);
-    this.socketsService.socket.to(link.collectionId).emit('S_DELETE_LINK', {
+    const link = await this.linksService.delete(id);
+    this.socketsService.socket.to(link.collectionId).emit('S_LINK_DELETE', {
       userId,
       collectionId: link.collectionId,
       linkId: id,

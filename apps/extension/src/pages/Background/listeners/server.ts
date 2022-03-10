@@ -24,7 +24,10 @@ export function serverEventsListener(
   socket.on('S_NEW_LINK', (data) => {
     receiveLinkCreate(data, port);
   });
-  socket.on('S_DELETE_LINK', (data) => {
+  socket.on('S_LINK_UPDATE', (data) => {
+    receiveLinkUpdate(data, port);
+  });
+  socket.on('S_LINK_DELETE', (data) => {
     receiveLinkDelete(data, port);
   });
   socket.on('S_COLLECTION_USER_DELETED', (data) => {
@@ -179,6 +182,7 @@ export async function receiveCollectionUpdate(
     data: { collections },
   });
 }
+
 export async function receiveLinkCreate(
   payload: {
     userId: string;
@@ -203,11 +207,10 @@ export async function receiveLinkCreate(
   });
 }
 
-export async function receiveLinkDelete(
+export async function receiveLinkUpdate(
   payload: {
+    data: Link & { collectionId: string };
     userId: string;
-    collectionId: string;
-    linkId: string;
   },
   port: chrome.runtime.Port
 ) {
@@ -215,15 +218,39 @@ export async function receiveLinkDelete(
     'collections',
     'user',
   ])) as Store;
-  if (!collections || user?.id === payload.userId) return;
-  const colIdx = collections.findIndex(
-    (c: Collection) => c.id === payload.collectionId
-  );
-  const linkIdx = collections[colIdx].links.findIndex(
-    (link) => link.id === payload.linkId
-  );
-  collections[colIdx].links.splice(linkIdx, 1);
+  const { collectionId, ...link } = payload.data;
+  if (!collections) return;
+  const idx = collections.findIndex((c: Collection) => c.id === collectionId);
+  if (idx === -1) return; // if user already left collection (but still connected to socket)
+  const linkIdx = collections[idx].links.findIndex((l) => l.id === link.id);
+  collections[idx].links[linkIdx] = link;
   updateCache({ collections });
+  if (user?.id === payload.userId) return;
+  port.postMessage({
+    message: 'COLLECTIONS_UPDATE_RECEIVED',
+    data: { collections },
+  });
+}
+
+export async function receiveLinkDelete(
+  payload: {
+    userId: string;
+    data: Link & { collectionId: string };
+  },
+  port: chrome.runtime.Port
+) {
+  const { collections, user } = (await chrome.storage.local.get([
+    'collections',
+    'user',
+  ])) as Store;
+  const { collectionId, id } = payload.data;
+  if (!collections) return;
+  const idx = collections.findIndex((c: Collection) => c.id === collectionId);
+  if (idx === -1) return; // if user already left collection (but still connected to socket)
+  const linkIdx = collections[idx].links.findIndex((l) => l.id === id);
+  collections[idx].links.splice(linkIdx, 1);
+  updateCache({ collections });
+  if (user?.id === payload.userId) return;
   port.postMessage({
     message: 'COLLECTIONS_UPDATE_RECEIVED',
     data: { collections },

@@ -1,9 +1,9 @@
 import { useStore } from 'contexts/store';
 import React, { SyntheticEvent } from 'react';
-import { Link } from 'utils/types';
+import { Collection } from 'utils/types';
 import { LinkItem } from './LinkItem';
 
-export function Body({ links }: { links: Link[] }) {
+export function Body({ collection }: { collection: Collection }) {
   const { user, deleteLink, updateLink } = useStore();
 
   const goTo = (url: string) => (e: SyntheticEvent) => {
@@ -17,18 +17,22 @@ export function Body({ links }: { links: Link[] }) {
     e.stopPropagation();
   };
 
-  const handleCheckClick = (idx: number) => (e: SyntheticEvent) => {
+  const handleCheckClick = (linkIdx: number) => (e: SyntheticEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (user?.id)
-      updateLink(idx, {
-        readerInfo: {
-          [user.id]: {
-            hasReadIt: true,
-          },
+    if (!user?.id) return;
+
+    const { readerInfo } = collection.links[linkIdx];
+    updateLink(linkIdx, {
+      readerInfo: {
+        ...readerInfo,
+        [user.id]: {
+          ...(readerInfo[user.id] ?? {}),
+          hasReadIt: !readerInfo[user.id]?.hasReadIt,
         },
-      });
+      },
+    });
   };
 
   const handleDeleteClick = (idx: number) => (e: SyntheticEvent) => {
@@ -39,7 +43,7 @@ export function Body({ links }: { links: Link[] }) {
 
   return (
     <div className="flex flex-col flex-1 max-h-[538px] overflow-y-auto space-y-3 p-2 pr-3">
-      {links?.map((link, i) => (
+      {collection.links.map((link, i) => (
         <a href="#" onClick={goTo(link.url)} key={link.id}>
           <LinkItem
             userId={user?.id}
@@ -48,6 +52,7 @@ export function Body({ links }: { links: Link[] }) {
             onEditClick={handleEditClick}
             onCheckClick={handleCheckClick}
             onDeleteClick={handleDeleteClick}
+            participants={collection.participants}
           />
         </a>
       ))}

@@ -22,10 +22,13 @@ export function popupEventsListener(
       requestLinkCreate(req.data, port);
       break;
     case 'P_LINK_UPDATE':
-      requestLinkUpdate(req.data);
+      socket.emit('B_LINK_UPDATE', {
+        id: req.data.linkId,
+        data: req.data.body,
+      });
       break;
     case 'P_LINK_DELETE':
-      requestLinkDelete(req.data);
+      socket.emit('B_LINK_DELETE', { id: req.data.linkId });
       break;
     case 'P_COLLECTION_USER_DELETE':
       requestCollectionUserDelete(req.data);
@@ -88,22 +91,4 @@ export async function requestLinkCreate(
     collections[idx].links.push(link);
     updateCache({ collections });
   });
-}
-
-export async function requestLinkUpdate(data: {
-  linkId: string;
-  collections: Collection[];
-  body: Partial<Link>;
-}) {
-  const path = `/links/${data.linkId}`;
-  await request(path, { method: 'PATCH', body: JSON.stringify(data.body) });
-  updateCache({ collections: data.collections });
-}
-
-export async function requestLinkDelete(data: {
-  linkId: string;
-  collections: Collection[];
-}) {
-  await request(`/links/${data.linkId}`, { method: 'DELETE' });
-  updateCache({ collections: data.collections });
 }

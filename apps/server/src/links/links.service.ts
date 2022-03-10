@@ -64,6 +64,7 @@ export class LinksService {
       return this.prismaService.link.delete({
         where: { id },
         select: {
+          id: true,
           collectionId: true,
         },
       });
