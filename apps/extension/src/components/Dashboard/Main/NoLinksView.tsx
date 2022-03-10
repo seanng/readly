@@ -3,7 +3,7 @@ import { NoLinksIcon } from './NoLinksIcon';
 
 export function NoLinksView() {
   return (
-    <div className="flex flex-col flex-1 shrink-0 items-center">
+    <div className="flex flex-col flex-1 shrink-0 items-center pt-12">
       <NoLinksIcon className="h-[278px] w-[417px]" />
       <div className="flex flex-col w-[400px] max-w-full items-center">
         <h3 className="text-base leading-6 font-medium text-gray-900 mt-5 mb-3">
