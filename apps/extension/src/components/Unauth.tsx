@@ -1,5 +1,5 @@
 import React, { SyntheticEvent } from 'react';
-import { PrimaryButtonWide, WhiteButtonWide } from 'ui';
+import { Logo, PrimaryButtonWide, WhiteButtonWide } from 'ui';
 import secrets from 'secrets';
 
 export const Unauth: React.FC = () => {
@@ -11,11 +11,7 @@ export const Unauth: React.FC = () => {
   return (
     <div className="min-h-full flex flex-col justify-center py-16 px-16">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <img
-          className="mx-auto h-12 w-auto"
-          src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
-          alt="Workflow"
-        />
+        <Logo className="mx-auto h-12 w-auto" />
         <h2 className="mt-6 mb-12 text-center text-xl font-semibold text-gray-900 leading-7">
           Welcome to CBE
         </h2>

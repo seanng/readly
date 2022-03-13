@@ -7,6 +7,7 @@ import {
   FacebookButton,
   Input,
   GoogleButton,
+  Logo,
 } from "ui";
 import { EMAIL_REGEX, LOGIN, SIGNUP } from "shared/constants";
 import { setAuthCookie } from "utils/helpers";
@@ -113,11 +114,7 @@ export function AuthForm({ type = LOGIN, token }) {
         }
       `}</style>
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <img
-          className="mx-auto h-12 w-auto"
-          src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
-          alt="Workflow"
-        />
+        <Logo className="mx-auto h-12 w-auto" />
         <h2 className="mt-6 text-center text-xl font-semibold text-gray-900 leading-7">
           {texts.heading[type]}
         </h2>
@@ -231,11 +228,7 @@ function AuthenticatedView() {
         }
       `}</style>
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <img
-          className="mx-auto h-12 w-auto"
-          src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
-          alt="Workflow"
-        />
+        <Logo className="mx-auto h-12 w-auto" />
         <h2 className="mt-6 text-center text-xl font-semibold text-gray-900 leading-7">
           You're signed in!
         </h2>
