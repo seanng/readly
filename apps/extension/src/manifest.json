@@ -1,7 +1,6 @@
 {
   "manifest_version": 3,
   "version": "0.0.0.1",
-  "key": "haocofjdkfhegogamdbekdfamlmfglnn",
   "description": "Collaborate and share links with your team in real time.",
   "name": "Researchly.US",
   "options_page": "options.html",
