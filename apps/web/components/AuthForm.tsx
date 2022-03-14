@@ -187,7 +187,8 @@ export function AuthForm({ type = LOGIN, token }) {
             </PrimaryButtonWide>
           </form>
           <div className="mt-6">
-            <div className="relative">
+            {/* Uncomment for Social Logins */}
+            {/* <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300" />
               </div>
@@ -200,7 +201,7 @@ export function AuthForm({ type = LOGIN, token }) {
             <div className="mt-6 grid grid-cols-2 gap-3">
               <FacebookButton />
               <GoogleButton />
-            </div>
+            </div> */}
             <div className="mt-6 flex justify-center text-sm font-normal text-gray-900">
               {texts.switchViewPrompt[type]}
               <span>
