@@ -1,12 +1,15 @@
 {
   "manifest_version": 3,
   "version": "0.0.0.1",
-  "description": "Collaborate and share links with your team in real time.",
+  "description": "Collaborate with your team in real time to create collections, share links and track each others reading progress.",
   "name": "Researchly.US",
   "options_page": "options.html",
   "background": { "service_worker": "background.bundle.js" },
-  "host_permissions": ["<all_urls>"],
-  "permissions": ["storage", "cookies", "tabs", "scripting"],
+  "host_permissions": [
+    "http://localhost:3001/*",
+    "https://readly.vercel.app/*"
+  ],
+  "permissions": ["storage", "cookies", "tabs"],
   "action": {
     "default_popup": "auth_popup.html",
     "default_icon": "logo-48.png"
@@ -24,7 +27,7 @@
     }
   ],
   "externally_connectable": {
-    "matches": ["http://localhost:3001/*"]
+    "matches": ["http://localhost:3001/*", "https://readly.vercel.app/*"]
   },
   "web_accessible_resources": [
     {
