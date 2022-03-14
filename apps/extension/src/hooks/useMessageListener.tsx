@@ -1,6 +1,6 @@
 import { useStore } from 'contexts/store';
 import { useConnection } from 'contexts/connection';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Collection, Link } from 'utils/types';
 
 interface ListenerProps {
@@ -9,6 +9,7 @@ interface ListenerProps {
 }
 
 export function useMessageListener() {
+  const [isSocketConnected, setIsSocketConnected] = useState(true);
   const port = useConnection();
 
   const { activeIdx, setCollections, setIsLoading, setIsCreatingCollection } =
@@ -36,8 +37,13 @@ export function useMessageListener() {
     setCollections(data.collections);
   }
 
+  function socketNotConnected() {
+    setIsSocketConnected(false);
+  }
+
   useEffect(() => {
     function listener({ message, data }: ListenerProps) {
+      if (message === 'SOCKET_NOT_CONNECTED') socketNotConnected();
       if (message === 'LINK_POST_SUCCESS') linkPostSuccess(data);
       if (message === 'COLLECTION_POST_SUCCESS') collectionPostSuccess(data);
       if (message === 'COLLECTIONS_UPDATE_RECEIVED')
@@ -46,4 +52,6 @@ export function useMessageListener() {
     port?.onMessage.addListener(listener);
     return () => port?.onMessage.removeListener(listener);
   }, [activeIdx, port]);
+
+  return { isSocketConnected };
 }

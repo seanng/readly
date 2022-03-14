@@ -6,9 +6,6 @@ export function serverEventsListener(
   socket: Socket,
   port: chrome.runtime.Port
 ) {
-  socket.on('connect_error', () => {
-    console.log('connect_error');
-  });
   socket.on('S_NEW_JOINER', (data) => {
     receiveCollectionJoin(data, port);
   });

@@ -15,8 +15,10 @@ chrome.runtime.onMessageExternal.addListener((_, __, ___) =>
 chrome.runtime.onMessage.addListener((_, __, ___) =>
   externalEventsListener(_, __, ___, onUserAuth)
 );
-
 chrome.runtime.onConnect.addListener(handlePopupOpen);
+chrome.runtime.onSuspend.addListener(() => {
+  console.log('onSuspend heard.');
+});
 
 async function onUserAuth(sendResponse: () => void) {
   const storageItems = await getStorageItems();
@@ -25,6 +27,7 @@ async function onUserAuth(sendResponse: () => void) {
 }
 
 async function handleExtensionStartup() {
+  console.log('extension starting up.');
   const storageItems = await getStorageItems();
   token = storageItems?.token;
   chrome.action.setPopup({
@@ -46,6 +49,12 @@ async function handlePopupOpen(port: chrome.runtime.Port) {
     transports: ['websocket'],
     auth: { token },
   });
+
+  if (!socket.connected) {
+    port.postMessage({
+      message: 'SOCKET_NOT_CONNECTED',
+    });
+  }
 
   serverEventsListener(socket, port);
   port.onMessage.addListener((req) => popupEventsListener(req, port, socket));

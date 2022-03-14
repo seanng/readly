@@ -9,10 +9,15 @@ import { ContextMenuProvider } from 'contexts/context-menu';
 import { ModalProvider } from 'contexts/modal';
 import { useConfigureUI } from 'hooks/useConfigureUI';
 import { useMessageListener } from 'hooks/useMessageListener';
+import { NotConnected } from './NotConnected';
 
 function Application() {
   useConfigureUI();
-  useMessageListener();
+  const { isSocketConnected } = useMessageListener();
+
+  if (!isSocketConnected) {
+    return <NotConnected />;
+  }
 
   return (
     <>
