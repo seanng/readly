@@ -86,7 +86,12 @@ export function NavItem({ collection, onClick, onRightClick, idx }: Props) {
       )}
     >
       <div className="truncate">{collection.name}</div>
-      <div className="ml-2 hidden group-hover:flex font-normal text-gray-400 text-xs items-center">
+      <div
+        className={classNames(
+          activeIdx === idx ? 'flex' : 'hidden group-hover:flex',
+          'ml-2 font-normal text-gray-400 text-xs items-center'
+        )}
+      >
         <div>{collection.participants.length}</div>
         <UserCircleIcon className="w-3 h-3 ml-0.5 mr-1" />
         <div>{collection.links.length}</div>
