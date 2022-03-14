@@ -37,13 +37,10 @@ export function useMessageListener() {
     setCollections(data.collections);
   }
 
-  function socketNotConnected() {
-    setIsSocketConnected(false);
-  }
-
   useEffect(() => {
     function listener({ message, data }: ListenerProps) {
-      if (message === 'SOCKET_NOT_CONNECTED') socketNotConnected();
+      if (message === 'SOCKET_CONNECTION_FAIL') setIsSocketConnected(false);
+      if (message === 'SOCKET_CONNECTION_SUCCESS') setIsSocketConnected(true);
       if (message === 'LINK_POST_SUCCESS') linkPostSuccess(data);
       if (message === 'COLLECTION_POST_SUCCESS') collectionPostSuccess(data);
       if (message === 'COLLECTIONS_UPDATE_RECEIVED')

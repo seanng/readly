@@ -33,6 +33,11 @@ const userData: Prisma.UserCreateInput[] = [
     // password is asdfasdf
     password: '$2b$08$KYHGJA48j4RW2Liy.gtNoOy21m0xVoWikkC89WMaIMPAGDNVURni2',
   },
+  {
+    email: 'john_smith@gmail.com',
+    // password is asdfasdf
+    password: '$2b$08$KYHGJA48j4RW2Liy.gtNoOy21m0xVoWikkC89WMaIMPAGDNVURni2',
+  },
 ];
 
 async function dropCollections() {

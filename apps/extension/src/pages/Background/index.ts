@@ -50,11 +50,17 @@ async function handlePopupOpen(port: chrome.runtime.Port) {
     auth: { token },
   });
 
-  if (!socket.connected) {
+  socket.on('connect', () => {
     port.postMessage({
-      message: 'SOCKET_NOT_CONNECTED',
+      message: 'SOCKET_CONNECTION_SUCCESS',
     });
-  }
+  });
+
+  socket.on('connect_error', () => {
+    port.postMessage({
+      message: 'SOCKET_CONNECTION_FAIL',
+    });
+  });
 
   serverEventsListener(socket, port);
   port.onMessage.addListener((req) => popupEventsListener(req, port, socket));

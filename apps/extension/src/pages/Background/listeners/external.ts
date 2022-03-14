@@ -45,7 +45,7 @@ export async function requestUserSignout(callback: () => void) {
   // TODO: save cache to db.
   // remove cookie so web displays signin page.
   await chrome.cookies.remove({
-    url: chrome.runtime.id, // emenakcmhhnnimenlofcmgmaakafgeld
+    url: secrets.webUrl,
     name: secrets.authTokenName, // cbe:token
   });
   await chrome.action.setPopup({
