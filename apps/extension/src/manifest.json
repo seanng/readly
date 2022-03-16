@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "version": "0.0.0.2",
-  "description": "Collaborate with your team in real time to create collections, share links and track each others reading progress.",
+  "description": "Share links and articles with your team members.",
   "name": "Researchly.US",
   "options_page": "options.html",
   "background": { "service_worker": "background.bundle.js" },
