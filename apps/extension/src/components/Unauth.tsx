@@ -13,7 +13,7 @@ export const Unauth: React.FC = () => {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Logo className="mx-auto h-12 w-auto" />
         <h2 className="mt-6 mb-12 text-center text-xl font-semibold text-gray-900 leading-7">
-          Welcome to CBE
+          Researchly.US
         </h2>
         <PrimaryButtonWide onClick={goTo(secrets.webUrl + '/login')}>
           Sign in

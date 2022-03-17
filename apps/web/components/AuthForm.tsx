@@ -1,22 +1,15 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
-import {
-  PrimaryButtonWide,
-  NavLink,
-  FacebookButton,
-  Input,
-  GoogleButton,
-  Logo,
-} from "ui";
+import { PrimaryButtonWide, NavLink, Input, Logo } from "ui";
 import { EMAIL_REGEX, LOGIN, SIGNUP } from "shared/constants";
 import { setAuthCookie } from "utils/helpers";
 import axios from "lib/axios";
 
 const texts = {
   heading: {
-    [LOGIN]: "Sign in to CBE",
-    [SIGNUP]: "Sign up to CBE",
+    [LOGIN]: "Sign in",
+    [SIGNUP]: "Sign up",
   },
   submitButton: {
     [LOGIN]: "Sign in",
