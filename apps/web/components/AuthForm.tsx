@@ -74,7 +74,7 @@ export function AuthForm({ type = LOGIN, token }) {
       // Promisify background response so isSubmitting stays true
       await new Promise((resolve) => {
         if (!chrome?.runtime) {
-          console.log("Chrome runtime could not be found.");
+          console.log("Chrome runtime could not be found!");
           authCallback(resolve);
           return;
         }
