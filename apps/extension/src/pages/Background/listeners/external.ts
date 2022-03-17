@@ -32,6 +32,7 @@ export async function authenticateUser(
   { token }: { token: string },
   cb: () => Promise<void>
 ) {
+  console.log('i heard you.');
   await chrome.storage.local.set({ token });
   const myDeets = await fetchMyData();
   await updateCache(myDeets);
