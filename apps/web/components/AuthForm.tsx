@@ -74,9 +74,14 @@ export function AuthForm({ type = LOGIN, token }) {
       // Promisify background response so isSubmitting stays true
       await new Promise((resolve) => {
         if (!chrome?.runtime) {
+          console.log("Chrome runtime could not be found.");
           authCallback(resolve);
           return;
         }
+        console.log(
+          "Chrome runtime found. Extension ID: ",
+          process.env.NEXT_PUBLIC_EXTENSION_ID
+        );
         chrome.runtime.sendMessage(
           process.env.NEXT_PUBLIC_EXTENSION_ID,
           {
