@@ -17,7 +17,7 @@ export async function request(route = '', options = {}) {
   }).then(async (res) => {
     const json = await res.json();
     if (!res.ok) {
-      console.log('Error from fetch: ', json);
+      console.log('Error from fetch! ', json);
       throw new Error();
     }
     return json;
